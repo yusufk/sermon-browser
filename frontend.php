@@ -1,17 +1,45 @@
 <?php 
 
-// we need the translator first
-require_once('dictionary.php');
-
+// Required files
+require_once('dictionary.php'); //Imports template tags
 require_once('widget.php');
 
-// word list for URL building purpose
+// Word list for URL building purpose
 $wl = array('preacher', 'title', 'date', 'enddate', 'series', 'service', 'sortby', 'dir', 'page', 'sermon_id', 'book', 'stag', 'podcast');
-// hooks & filters
+
+// Hooks & filters
 add_action('template_redirect', 'bb_hijack');
+add_filter('wp_title', 'sb_page_title');
 add_action('wp_head', 'bb_print_header');
 add_filter('the_content', 'bb_sermons_filter');
 add_action('widgets_init', 'widget_sermon_init');
+
+// Get the URL of the sermons page
+function sb_display_url() {
+	global $sef, $wpdb, $isMe, $post;
+	if (!$sef) {
+		if ($isMe) $display_url=get_permalink( $post->ID );
+		else {
+			$pageid = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE post_content = '[sermons]' AND post_status = 'publish' AND post_date < NOW();");
+			$display_url = get_permalink($pageid);
+		}
+		if (substr($display_url, -1) == '/') $display_url=substr($display_url, 0, -1);
+		$sef=$display_url;
+	}
+	return $sef;
+}
+
+//Modify page title
+function sb_page_title($title) {
+	global $wpdb;
+	if ($_GET['sermon_id']) {
+		$id = $_GET['sermon_id'];
+		$sermon = $wpdb->get_row("SELECT m.id, m.title, m.date, m.start, m.end, p.id as pid, p.name as preacher, s.id as sid, s.name as service, ss.id as ssid, ss.name as series FROM {$wpdb->prefix}sb_sermons as m, {$wpdb->prefix}sb_preachers as p, {$wpdb->prefix}sb_services as s, {$wpdb->prefix}sb_series as ss where m.preacher_id = p.id and m.service_id = s.id and m.series_id = ss.id and m.id = $id");
+		return $title.' ('.stripslashes($sermon->title).' - '.stripslashes($sermon->preacher).')';
+	}
+	else
+		return $title;
+}
 
 //Fix for AudioPlayer v2
 if (!function_exists('ap_insert_player_widgets') & function_exists('insert_audio_player')) {
@@ -27,7 +55,7 @@ function sb_download_page ($page_url) {
 		curl_setopt ($curl, CURLOPT_URL, $page_url);
 		curl_setopt ($curl, CURLOPT_TIMEOUT, 2);
 		curl_setopt ($curl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt ($curl, CURLOPT_HTTPHEADER, array('Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7'));
+		curl_setopt ($curl, CURLOPT_HTTPHEADER, array('Accept-Charset: utf-8;q=0.7,*;q=0.7'));
 		$contents = curl_exec ($curl);
 		$content_type = curl_getinfo( $curl, CURLINFO_CONTENT_TYPE );
 		curl_close ($curl);
@@ -82,6 +110,7 @@ function add_esv_text ($start, $end) {
 	return sb_download_page ($esv_url);
 }
 
+//Add Bible text to single sermon page
 function add_bible_text ($start, $end, $version) {
 	if ($version == "esv") {
 		return add_esv_text ($start, $end);
@@ -99,6 +128,7 @@ function add_bible_text ($start, $end, $version) {
 		}
 		$ls_url = 'http://api.seek-first.com/v1/BibleSearch.php?type=lookup&appid=seekfirst&startbooknum='.$r1.'&startchapter='.$r2.'&startverse='.$r3.'&endbooknum='.$r4.'&endchapter='.$r5.'&endverse='.$r6.'&version='.$version;
 		$content = sb_download_page ($ls_url);
+		//Clean up and re-format data
 		if ($content != '') {
 			$r1++;
 			for (; $r4>=$r1; $r1++) {
@@ -168,7 +198,7 @@ function print_bible_passage ($start, $end) {
 	echo "<p class='bible-passage'>".$reference."</p>";
 }
 
-// podcast
+// Display podcast
 function bb_hijack() {
 	global $wordpressRealPath;
 	if (isset($_REQUEST['podcast'])) {
@@ -239,12 +269,8 @@ function bb_sermons_filter($content) {
 }
 
 function bb_build_url($arr, $clear = false) {
-	global $wl, $post, $pageid, $wpdb;
-	if (!$pageid) {
-		$pageid = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE post_content = '[sermons]' AND post_status = 'publish' AND post_date < NOW();");
-	}
-	$sef = get_permalink($pageid);
-	if (substr($sef, -1) == '/') $sef=substr($sef, 0, -1);
+	global $wl, $post, $sef, $wpdb;
+	$sef = sb_display_url();
 	$foo = array_merge((array) $_GET, (array) $_POST, $arr);
 	foreach ($foo as $k => $v) {
 		if (!$clear || in_array($k, array_keys($arr)) || !in_array($k, $wl)) {
@@ -437,6 +463,19 @@ function bb_print_code($code) {
 	echo base64_decode($code);
 }
 
+function bb_print_preacher_description($sermon) {
+	global $sermon_domain;
+	if (strlen($sermon->preacher_description)>0) {
+		echo "<div class='preacher-description'><span class='about'>" . __('About', $sermon_domain).' '.stripslashes($sermon->preacher).': </span>';
+		echo "<span class='description'>".stripslashes($sermon->preacher_description)."</span></div>";
+	}
+}
+
+function bb_print_preacher_image($sermon) {
+	if ($sermon->image) 
+		echo "<img alt='".stripslashes($sermon->preacher)."' class='preacher' src='".get_bloginfo("wpurl").get_option("sb_sermon_upload_dir")."images/".$sermon->image."'>";
+}
+
 function bb_print_next_sermon_link($sermon) {
 	global $wpdb;
 	$next = $wpdb->get_row("SELECT id, title FROM {$wpdb->prefix}sb_sermons WHERE date > '$sermon->date' AND id <> $sermon->id ORDER BY date asc");
@@ -472,7 +511,7 @@ function bb_print_sameday_sermon_link($sermon) {
 function bb_get_single_sermon($id) {
 	global $wpdb;
 	$id = (int) $id;
-	$sermon = $wpdb->get_row("SELECT m.id, m.title, m.date, m.start, m.end, p.id as pid, p.name as preacher, s.id as sid, s.name as service, ss.id as ssid, ss.name as series FROM {$wpdb->prefix}sb_sermons as m, {$wpdb->prefix}sb_preachers as p, {$wpdb->prefix}sb_services as s, {$wpdb->prefix}sb_series as ss where m.preacher_id = p.id and m.service_id = s.id and m.series_id = ss.id and m.id = $id");
+	$sermon = $wpdb->get_row("SELECT m.id, m.title, m.date, m.start, m.end, p.id as pid, p.name as preacher, p.image as image, p.description as preacher_description, s.id as sid, s.name as service, ss.id as ssid, ss.name as series FROM {$wpdb->prefix}sb_sermons as m, {$wpdb->prefix}sb_preachers as p, {$wpdb->prefix}sb_services as s, {$wpdb->prefix}sb_series as ss where m.preacher_id = p.id and m.service_id = s.id and m.series_id = ss.id and m.id = $id");
 	$stuff = $wpdb->get_results("SELECT f.type, f.name FROM {$wpdb->prefix}sb_stuff as f WHERE sermon_id = $id ORDER BY id desc");	
 	$rawtags = $wpdb->get_results("SELECT t.name FROM {$wpdb->prefix}sb_sermons_tags as st LEFT JOIN {$wpdb->prefix}sb_tags as t ON st.tag_id = t.id WHERE st.sermon_id = $sermon->id ORDER BY t.name asc");
 	foreach ($rawtags as $tag) {
@@ -557,7 +596,7 @@ function bb_count_sermons($filter) {
 			$bs = "AND bs.order = 0 AND bs.type= 'start' ";
 		}
 		if ($filter['tag'] != '') {
-			$cond .= 'OR t.name LIKE "%' . ($filter['title']) . '%" ';
+		$cond .= "AND t.name LIKE '%" . mysql_real_escape_string($filter['tag']) . "%' ";
 		}
 		$query = "SELECT COUNT(*) 
 			FROM {$wpdb->prefix}sb_sermons as m 
@@ -619,7 +658,7 @@ function bb_get_sermons($filter, $order, $page = 1, $limit = 15) {
 		$bs = "AND bs.order = 0 AND bs.type= 'start' ";
 	}
 	if ($filter['tag'] != '') {
-		$cond .= 'OR t.name LIKE "%' . mysql_real_escape_string($filter['title']) . '%" ';
+		$cond .= "AND t.name LIKE '%" . mysql_real_escape_string($filter['tag']) . "%' ";
 	}
 	$offset = $limit * ($page - 1);
 	if ($order['by'] == 'm.date' ) {

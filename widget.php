@@ -1,8 +1,10 @@
 <?php
+
 function display_sermons($options = array()) {
 	$default = array(
 		'display_preacher' => 1,
 		'display_passage' => 1,
+		'display_date' => 1,
 		'preacher' => 0,
 		'service' => 0,
 		'series' => 0,
@@ -10,6 +12,7 @@ function display_sermons($options = array()) {
 	);
 	$options = array_merge($default, (array) $options);
 	extract($options);
+	// Do stuff for this widget, drawing data from $options[$number]
 	$sermons = bb_get_sermons(array(
 			'preacher' => $preacher,
 			'service' => $service,
@@ -18,12 +21,15 @@ function display_sermons($options = array()) {
 		array(), 1, $limit		
 	);
 ?>
+	<ul class="sermon-widget">
 	<?php foreach ((array) $sermons as $sermon): ?>
-		<span class="sermon-title"><a href="<?php bb_print_sermon_link($sermon) ?>"><?php echo stripslashes($sermon->title) ?></a></span><br />
-		<?php if ($display_preacher): ?><span class="preacher"><?php _e('Preached by ', $sermon_domain) ?><a href="<?php bb_print_preacher_link($sermon) ?>"><?php echo stripslashes($sermon->preacher) ?></a></span><br /><?php endif ?>
-		<?php if ($display_passage): ?><span class="sermon-passage"><?php $foo = unserialize($sermon->start); $bar = unserialize($sermon->end); echo bb_get_books($foo[0], $bar[0]) ?></span><br /><?php endif ?>
-		<br />		
+		<li><span class="sermon-title"><a href="<?php bb_print_sermon_link($sermon) ?>"><?php echo stripslashes($sermon->title) ?></a></span>
+			<?php 	if ($display_passage): ?><span class="sermon-passage">(<?php $foo = unserialize($sermon->start); $bar = unserialize($sermon->end); echo bb_get_books($foo[0], $bar[0]) ?>)</span><?php endif; 
+					if ($display_preacher): ?><span class="sermon-preacher"> <?php _e('by', $sermon_domain) ?> <a href="<?php bb_print_preacher_link($sermon) ?>"><?php echo stripslashes($sermon->preacher) ?></a></span><?php endif; 
+					if ($display_date): ?><span class="sermon-date"><?php _e(' on ', $sermon_domain); echo date("j F Y", strtotime($sermon->date)); ?></span><?php endif ?>.
+		</li>		
 	<?php endforeach ?>
+	</ul>
 <?php
 }
 
@@ -58,7 +64,7 @@ function widget_sermon_init() {
 }
 
 function widget_sermon( $args, $widget_args = 1 ) {
-	global $sermon_domain, $isMe;
+	global $sermon_domain;
 	extract( $args, EXTR_SKIP );
 	if ( is_numeric($widget_args) )
 		$widget_args = array( 'number' => $widget_args );
@@ -72,8 +78,6 @@ function widget_sermon( $args, $widget_args = 1 ) {
 		
 	extract($options[$number]);
 	
-?>
-<?php
 	echo $before_widget;
 	echo $before_title . $title . $after_title;
 	// Do stuff for this widget, drawing data from $options[$number]
@@ -88,9 +92,9 @@ function widget_sermon( $args, $widget_args = 1 ) {
 	<ul class="sermon-widget">
 	<?php foreach ((array) $sermons as $sermon): ?>
 		<li><span class="sermon-title"><a href="<?php bb_print_sermon_link($sermon) ?>"><?php echo stripslashes($sermon->title) ?></a></span>
-			<?php if ($book): ?><span class="sermon-passage">(<?php $foo = unserialize($sermon->start); $bar = unserialize($sermon->end); echo bb_get_books($foo[0], $bar[0]) ?>)</span><?php endif ?>
-			<?php if ($preacherz): ?><span class="sermon-preacher"> <?php _e('by', $sermon_domain) ?> <a href="<?php bb_print_preacher_link($sermon) ?>"><?php echo stripslashes($sermon->preacher) ?></a></span><?php endif ?>
-			<?php if ($date): ?><span class="sermon-date"> <?php _e(' on ', $sermon_domain); echo date("j F Y", strtotime($sermon->date)); ?></span>.<?php endif ?>
+			<?php	if ($book): ?><span class="sermon-passage">(<?php $foo = unserialize($sermon->start); $bar = unserialize($sermon->end); echo bb_get_books($foo[0], $bar[0]) ?>)</span><?php endif;
+					if ($preacherz): ?><span class="sermon-preacher"> <?php _e('by', $sermon_domain) ?> <a href="<?php bb_print_preacher_link($sermon) ?>"><?php echo stripslashes($sermon->preacher) ?></a></span><?php endif;
+					if ($date): ?><span class="sermon-date"> <?php _e(' on ', $sermon_domain); echo date("j F Y", strtotime($sermon->date)); ?></span><?php endif ?>.
 		</li>		
 	<?php endforeach ?>
 	</ul>

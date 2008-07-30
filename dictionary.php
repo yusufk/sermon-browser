@@ -35,8 +35,8 @@ $mdict = array(
 $sdict = array(
 	'[sermon_title]' => '<?php echo stripslashes($sermon["Sermon"]->title) ?>',
 	'[preacher_link]' => '<a href="<?php bb_print_preacher_link($sermon["Sermon"]) ?>"><?php echo stripslashes($sermon["Sermon"]->preacher) ?></a>',
-	'[preacher_description]' => '<?php echo stripslashes($sermon["Sermon"]->preacher_description) ?>',
-	'[preacher_image]' => '<img src=\'<?php echo get_bloginfo("wpurl") ?>/wp-content/plugins/sermonbrowser/preachers/<?php echo $sermon["Sermon"]->image ?>\'',
+	'[preacher_description]' => '<?php bb_print_preacher_description($sermon["Sermon"]) ?>',
+	'[preacher_image]' => '<?php bb_print_preacher_image($sermon["Sermon"]) ?>',
 	'[series_link]' => '<a href="<?php bb_print_series_link($sermon["Sermon"]) ?>"><?php echo stripslashes($sermon["Sermon"]->series) ?></a>',
 	'[service_link]' => '<a href="<?php bb_print_service_link($sermon["Sermon"]) ?>"><?php echo stripslashes($sermon["Sermon"]->service) ?></a>',
 	'[date]' => '<?php echo date("j F Y", strtotime($sermon["Sermon"]->date)) ?>',

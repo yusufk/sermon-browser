@@ -4,7 +4,7 @@ Plugin Name: Sermon Browser
 Plugin URI: http://www.4-14.org.uk/category/sermonbrowser
 Description: Add sermons to your Wordpress blog. Coding by <a href="http://codeandmore.com/">Tien Do Xuan</a>. Design 
 Author: Mark Barnes
-Version: 0.21
+Version: 0.23
 Author URI: http://www.4-14.org.uk/
 
 Copyright (c) 2008 Mark Barnes
@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// localization stuff
+// Localization
 $sermon_domain = 'tdxsm';
 $sermon_is_setup = 0;
 
@@ -46,13 +46,20 @@ include_once('filetypes.php');
 
 // URLs and paths
 $ser_ver = '1.1';
-
 $url = get_bloginfo('wpurl');
 global $wordpressRealPath;
 $wordpressRealPath = str_replace("\\", "/", dirname(dirname(dirname(dirname(__FILE__)))));
 global $defaultSermonPath;
 $defaultSermonPath = '/'.get_option('upload_path').'/sermons/';
 $defaultSermonURL = get_bloginfo('url').'/'.get_option('upload_path').'/sermons/';
+
+//Attempt to set php.ini directives
+if (return_kbytes(ini_get('upload_max_filesize'))<15360) ini_set('upload_max_filesize', '15M');
+if (return_kbytes(ini_get('post_max_size'))<15360) ini_set('post_max_size', '15M');
+if (return_kbytes(ini_get('memory_limit'))<16384) ini_set('memory_limit', '16M');
+if (intval(ini_get('max_input_time'))<600) ini_set('max_input_time','600');
+if (intval(ini_get('max_execution_time'))<600) ini_set('max_execution_time', '600');
+if (ini_get('file_uploads')<>'1') ini_set('file_uploads', '1');
 
 // install if needed
 sermon_setup();
@@ -62,6 +69,19 @@ $books = array('Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Josh
 
 // everything related to front end
 include('frontend.php');
+
+//Processing for php.ini values
+function return_kbytes($val) {
+	$val = trim($val);
+	$last = strtolower($val[strlen($val)-1]);
+	switch($last) {
+		case 'g':
+			$val *= 1024;
+		case 'm':
+			$val *= 1024;
+	}
+   return intval($val);
+}
 
 // ajax stuff
 // through out this plugin, p stands for preacher, s stands for service and ss stands for series
@@ -202,9 +222,7 @@ if ($_POST['sermon'] == 1) {
 				<th style="text-align:center" scope="row"><?php echo $file->id ?></th>
 				<td id="<?php echo $_POST['fetchU'] ? '' : 's' ?><?php echo $file->id ?>"><?php echo substr($file->name, 0, strrpos($file->name, '.')) ?></td>
 				<td style="text-align:center"><?php echo isset($filetypes[substr($file->name, strrpos($file->name, '.') + 1)]['name']) ? $filetypes[substr($file->name, strrpos($file->name, '.') + 1)]['name'] : strtoupper(substr($file->name, strrpos($file->name, '.') + 1)) ?></td>
-				<?php if (!empty($file->title)): ?>
 				<td><?php echo stripslashes($file->title) ?></td>
-				<?php endif ?>
 				<td style="text-align:center">
 					<script type="text/javascript" language="javascript">
                     function deletelinked_<?php echo $file->id;?>(filename, filesermon) {
@@ -247,407 +265,15 @@ function sermon_install () {
    global $defaultSermonPath, $defaultSermonURL, $defaultMultiForm, $defaultSingleForm, $defaultStyle;
    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
    
-   $fooz = <<<HERE
-<div class="sermon-browser">
-	<h2>Filters</h2>		
-	[filters_form]
-   	<div style="clear:both"><div class="podcastcustom"><a href="[podcast_for_search]">[podcasticon_for_search]</a><span><a href="[podcast_for_search]">Subscribe to custom podcast</a></span><br />(new sermons that match this <b>search</b>)</div><div class="podcastall"><a href="[podcast]">[podcasticon]</a><span><a href="[podcast]">Subscribe to full podcast</a></span><br />(<b>all</b> new sermons)</div>
-</div>
-	<h2>Sermons ([sermons_count])</h2>   	
-   	<div class="floatright">[next_page]</div>
-   	<div class="floatleft">[previous_page]</div>
-	<table class="sermons">
-	[sermons_loop]	
-		<tr>
-			<td class="sermon-title">[sermon_title]</td>
-		</tr>
-		<tr>
-			<td class="sermon-passage">[first_passage] (Part of the [series_link] series).</td>
-		</tr>
-		<tr>
-			<td class="files">[files_loop][file][/files_loop]</td>
-		</tr>
-		<tr>
-			<td class="urls">[urls_loop][url][/urls_loop]</td>
-		</tr>
-		<tr>
-			<td class="embed">[embed_loop][embed][/embed_loop]</td>
-		</tr>
-		<tr>
-			<td class="preacher">Preached by [preacher_link] on [date] ([service_link]).</td>
-		</tr>
-   	[/sermons_loop]
-	</table>
-   	<div class="floatright">[next_page]</div>
-   	<div class="floatleft">[previous_page]</div>
-   	[creditlink]
-</div>
-HERE;
-    $barz = <<<HERE
-<div class="sermon-browser-results">
-	<h2>[sermon_title] <span class="scripture">([passages_loop][passage] [/passages_loop])</span></h2>
-	<span class="preacher">[preacher_link], [date]</span><br />
-	Part of the [series_link] series, preached at a [service_link] service<br />
-	Tags: [tags]<br />
-	[files_loop]	
-		[file]  
-	[/files_loop]
-	[urls_loop]
-		[url]  
-	[/urls_loop]
-	[embed_loop]
-		<br />[embed]<br />
-	[/embed_loop]
-	<br />	
-	<table class="nearby-sermons">
-		<tr>
-			<th class="earlier">Earlier:</th>
-			<th>Same day:</th>
-			<th class="later">Later:</th>
-		</tr>
-		<tr>
-			<td class="earlier">[prev_sermon]</td>
-			<td>[sameday_sermon]</td>
-			<td class="later">[next_sermon]</td>
-		</tr>
-	</table>
-	[esvtext]
-   	[creditlink]
-</div>
-HERE;
-
-$defaultStyle = <<<HERE
-.sermon-browser h2 {
-	clear: both;
-}
-
-div.sermon-browser table.sermons {
-	width: 100%;
-	clear:both;
-}
-
-div.sermon-browser table.sermons td.sermon-title {
-	font-weight:bold;
-	font-size: 140%;
-	padding-top: 2em;
-}
-
-div.sermon-browser table.sermons td.sermon-passage {
-	font-weight:bold;
-	font-size: 110%;
-}
-
-div.sermon-browser table.sermons td.preacher {
-	border-bottom: 1px solid #444444;
-}
-
-div.sermon-browser table.sermons td.files img {
-	border: none;
-	margin-right: 24px;
-}
-
-table.sermonbrowser td.fieldname {
-	font-weight:bold;
-	padding-right: 10px;
-	vertical-align:bottom;
-}
-
-table.sermonbrowser td.field input, table.sermonbrowser td.field select{
-	width: 170px;
-}
-
-table.sermonbrowser td.field  #date, table.sermonbrowser td.field #enddate {
-	width: 150px;
-}
-
-table.sermonbrowser td {
-	white-space: nowrap;
-	padding-top: 5px;
-	padding-bottom: 5px;
-}
-
-table.sermonbrowser td.rightcolumn {
-	padding-left: 10px;
-}
-
-div.sermon-browser div.floatright {
-	float: right
-}
-
-div.sermon-browser div.floatleft {
-	float: left
-}
-
-img.sermon-icon , img.site-icon {
-	border: none;
-}
-
-div.podcastall {
-	float:left;
-	border: 2px solid #FC9328;
-	background: #fff0c8 url(icons/podcast_background.png) repeat-x;
-	padding: 0.3em;
-}
-
-div.podcastall img.podcasticon, div.podcastcustom img.podcasticon {
-	float:left;
-	margin-right: 1em;
-	border: none;
-}
-
-div.podcastall span a{
-	color: #FC9328;
-	font-weight: bold;
-	font-size:125%;
-}
-
-div.podcastcustom {
-	float:right;
-	border: 2px solid #b83ee5;
-	background: #fce4ff url(icons/podcast_custom_background.png) repeat-x;
-	padding: 0.3em;
-}
-div.podcastcustom span a{
-	color: #b83ee5;
-	font-weight: bold;
-	font-size:125%;
-}
-
-div.sermon-browser-results span.preacher {
-	font-size: 120%;
-}
-
-div.sermon-browser-results span.scripture {
-	font-size: 80%;
-}
-
-div.esv span.chapter-num {
-	font-weight: bold;
-	font-size: 150%;
-}
-
-div.esv span.verse-num {
-	vertical-align:super;
-	line-height: 1em;
-	font-size: 65%;
-}
-
-div.sermon-browser #poweredbysermonbrowser {
-	text-align:center;
-}
-div.sermon-browser-results #poweredbysermonbrowser {
-	text-align:right;
-}
-
-table.nearby-sermons {
-	width: 100%;
-}
-
-table.nearby-sermons td, table.nearby-sermons th {
-	text-align: center;
-}
-
-table.nearby-sermons .earlier {
-	padding-right: 1em;
-	text-align: left;
-}
-
-table.nearby-sermons .later {
-	padding-left: 1em;
-	text-align:right;
-}
-
-table.nearby-sermons td {
-	width: 33%;
-	vertical-align: top;
-}
-
-ul.sermon-widget {
-	list-style-type:none;
-	margin:0;
-	padding: 0;
-}
-
-ul.sermon-widget li {
-	list-style-type:none;
-	margin:0;
-	padding: 0.25em 0;
-}
-
-ul.sermon-widget li span.sermon-title{
-	font-weight:bold;.sermon-browser h2 {
-	clear: both;
-}
-
-div.sermon-browser table.sermons {
-	width: 100%;
-	clear:both;
-}
-
-div.sermon-browser table.sermons td.sermon-title {
-	font-weight:bold;
-	font-size: 140%;
-	padding-top: 2em;
-}
-
-div.sermon-browser table.sermons td.sermon-passage {
-	font-weight:bold;
-	font-size: 110%;
-}
-
-div.sermon-browser table.sermons td.preacher {
-	border-bottom: 1px solid #444444;
-}
-
-div.sermon-browser table.sermons td.files img {
-	border: none;
-	margin-right: 24px;
-}
-
-table.sermonbrowser td.fieldname {
-	font-weight:bold;
-	padding-right: 10px;
-	vertical-align:bottom;
-}
-
-table.sermonbrowser td.field input, table.sermonbrowser td.field select{
-	width: 170px;
-}
-
-table.sermonbrowser td.field  #date, table.sermonbrowser td.field #enddate {
-	width: 150px;
-}
-
-table.sermonbrowser td {
-	white-space: nowrap;
-	padding-top: 5px;
-	padding-bottom: 5px;
-}
-
-table.sermonbrowser td.rightcolumn {
-	padding-left: 10px;
-}
-
-div.sermon-browser div.floatright {
-	float: right
-}
-
-div.sermon-browser div.floatleft {
-	float: left
-}
-
-img.sermon-icon , img.site-icon {
-	border: none;
-}
-
-div.podcastall {
-	float:left;
-	border: 2px solid #FC9328;
-	background: #fff0c8 url(icons/podcast_background.png) repeat-x;
-	padding: 0.3em;
-}
-
-div.podcastall img.podcasticon, div.podcastcustom img.podcasticon {
-	float:left;
-	margin-right: 1em;
-	border: none;
-}
-
-div.podcastall span a{
-	color: #FC9328;
-	font-weight: bold;
-	font-size:125%;
-}
-
-div.podcastcustom {
-	float:right;
-	border: 2px solid #b83ee5;
-	background: #fce4ff url(icons/podcast_custom_background.png) repeat-x;
-	padding: 0.3em;
-}
-div.podcastcustom span a{
-	color: #b83ee5;
-	font-weight: bold;
-	font-size:125%;
-}
-
-div.sermon-browser-results span.preacher {
-	font-size: 120%;
-}
-
-div.sermon-browser-results span.scripture {
-	font-size: 80%;
-}
-
-span.chapter-num {
-	font-weight: bold;
-	font-size: 150%;
-}
-
-span.verse-num {
-	vertical-align:super;
-	line-height: 1em;
-	font-size: 65%;
-}
-
-div.esv span.small-caps {
-	font-variant: small-caps;
-}
-
-
-div.sermon-browser #poweredbysermonbrowser {
-	text-align:center;
-}
-div.sermon-browser-results #poweredbysermonbrowser {
-	text-align:right;
-}
-
-table.nearby-sermons {
-	width: 100%;
-}
-
-table.nearby-sermons td, table.nearby-sermons th {
-	text-align: center;
-}
-
-table.nearby-sermons .earlier {
-	padding-right: 1em;
-	text-align: left;
-}
-
-table.nearby-sermons .later {
-	padding-left: 1em;
-	text-align:right;
-}
-
-table.nearby-sermons td {
-	width: 33%;
-	vertical-align: top;
-}
-
-ul.sermon-widget {
-	list-style-type:none;
-	margin:0;
-	padding: 0;
-}
-
-ul.sermon-widget li {
-	list-style-type:none;
-	margin:0;
-	padding: 0.25em 0;
-}
-
-ul.sermon-widget li span.sermon-title{
-	font-weight:bold;
-}
-HERE;
-   $defaultMultiForm = $fooz; $defaultSingleForm = $barz;
+   if(get_option('sb_sermon_db_version') =='1.2'){
+       return;
+   }
+   delete_option('sb_sermon_style');
    add_option('sb_sermon_style', base64_encode($defaultStyle));
 
-   
    $sermonUploadDir = $defaultSermonPath;
 
-//Try to create the folder if not exist
+	//Try to create the folder if not exist
    if (!is_dir($wordpressRealPath.$sermonUploadDir)) {
       //Create that folder
       if (@mkdir($wordpressRealPath.$sermonUploadDir)) {
@@ -655,9 +281,10 @@ HERE;
          @chmod($wordpressRealPath.$sermonUploadDir, 0777);          
       }
    }
-if(!is_dir($wordpressRealPath.$sermonUploadDir.'images') && @mkdir($wordpressRealPath.$sermonUploadDir.'images')){
-	     @chmod($wordpressRealPath.$sermonUploadDir.'images', 0777);
-	   }
+	if(!is_dir($wordpressRealPath.$sermonUploadDir.'images') && @mkdir($wordpressRealPath.$sermonUploadDir.'images')){
+		@chmod($wordpressRealPath.$sermonUploadDir.'images', 0777);
+	}
+	//Upgrade database from earlier versions
 	switch (get_option('sb_sermon_db_version')) {
 		case '1.0':
 			// db
@@ -692,6 +319,7 @@ if(!is_dir($wordpressRealPath.$sermonUploadDir.'images') && @mkdir($wordpressRea
 			break;
 	}   	
 
+	//Create default tables
    $table_name = $wpdb->prefix . "sb_preachers";
    if($wpdb->get_var("show tables like '$table_name'") != $table_name) {            
 	  $sql = "CREATE TABLE " . $table_name . " (
@@ -817,39 +445,22 @@ if(!is_dir($wordpressRealPath.$sermonUploadDir.'images') && @mkdir($wordpressRea
 			);";
 	      dbDelta($sql);
 	   }
-   $welcome_name = __('Delete', $sermon_domain);
-   $welcome_text = __('Congratulations, you just completed the installation!', $sermon_domain);	
-   add_option('sb_sermon_upload_dir', $sermonUploadDir);
-   add_option('sb_sermon_upload_url', $defaultSermonURL);
+	$welcome_name = __('Delete', $sermon_domain);
+	$welcome_text = __('Congratulations, you just completed the installation!', $sermon_domain);	
+	add_option('sb_sermon_upload_dir', $sermonUploadDir);
+	add_option('sb_sermon_upload_url', $defaultSermonURL);
 	add_option('sb_podcast', get_bloginfo('url').$sef.'/?podcast');
    
-   	
 	delete_option('sb_sermon_multi_form');
-   	add_option('sb_sermon_multi_form', base64_encode($fooz));
+   	add_option('sb_sermon_multi_form', base64_encode(sb_default_multi_template()));
 	delete_option('sb_sermon_single_form');
-   	add_option('sb_sermon_single_form', base64_encode($barz));
-   	
-
-   	
+   	add_option('sb_sermon_single_form', base64_encode(sb_default_single_template()));
+	delete_option('sb_sermon_style');
+   	add_option('sb_sermon_style', base64_encode(sb_default_css()));
+ 	
 	for ($i=0; $i < count($books); $i++) { 
 		$wpdb->query("INSERT INTO {$wpdb->prefix}sb_books VALUES (null, '$books[$i]');");
 	}
-
-   
-/*
-   	$fh = fopen($wordpressRealPath.'/wp-content/plugins/sermonbrowser/multi.php', 'w');
-   	if ($fh) {
-   		fwrite($fh, strtr($fooz, $mdict));
-   		fclose($fh);
-		//@chmod($wordpressRealPath.'/wp-content/plugins/sermonbrowser/multi.php', 0777);
-	}
-   	$fh = fopen($wordpressRealPath.'/wp-content/plugins/sermonbrowser/single.php', 'w');
-	if ($fh) {
-	   	fwrite($fh, strtr($barz, $sdict));
-   		fclose($fh);
-		//@chmod($wordpressRealPath.'/wp-content/plugins/sermonbrowser/single.php', 0777);
-	}
-*/
 }
 
 // admin cp pages
@@ -878,10 +489,11 @@ function bb_build_textarea($name, $html) {
 function bb_options() {
 	global $wpdb, $sermon_domain, $mdict, $sdict, $sef;
 	global $wordpressRealPath;
-	global $defaultSermonPath, $defaultSermonURL, $defaultMultiForm, $defaultSingleForm, $defaultStyle;
+	global $defaultSermonPath, $defaultSermonURL;
+	$sef = sb_display_url();
 	if ($_POST['resetdefault']) {
 		$dir = $defaultSermonPath;
-		update_option('sb_podcast', get_bloginfo('url').$sef.'/?podcast');
+		update_option('sb_podcast', $sef.'/?podcast');
 		update_option('sb_sermon_upload_dir', $defaultSermonPath);
 		update_option('sb_sermon_upload_url', $defaultSermonURL);
 	   	if (!is_dir($wordpressRealPath.$dir)) {
@@ -953,62 +565,43 @@ function bb_options() {
 		$single = $_POST['single'];
 		$style = $_POST['style'];
 	    if($_POST['resetdefault2']){
-		    $multi = $defaultMultiForm;
-		    $single = $defaultSingleForm;
-		    $style = $defaultStyle;
+		    $multi = sb_default_multi_template();
+		    $single = sb_default_single_template();
+		    $style = sb_default_css();
 		}
-		//*
 		update_option('sb_sermon_multi_form', base64_encode($multi));
 		update_option('sb_sermon_single_form', base64_encode($single));
 		update_option('sb_sermon_style', base64_encode($style));
-		//*/
-	   	$checkSermonUpload = checkSermonUploadable();
-	   	switch ($checkSermonUpload) {
-	   	case "unwriteable":
+		$fh = @fopen($wordpressRealPath.'/wp-content/plugins/sermonbrowser/multi.php', 'w');
+		if ($fh) {
+			fwrite($fh, strtr(stripslashes($multi), $mdict));
+			fclose($fh);
+		} else {
 			echo '<div id="message" class="updated fade"><p><b>';
-			_e('Error: The upload folder is not writeable. You need to CHMOD the folder to 666 or 777.', $sermon_domain);
-			echo '</b></div>';
-			break;
-		case "notexist":
+			_e('Could not save multi template. Please check permission for multi.php in plugin folder', $sermon_domain);
+			echo '</b></div>';			
+		}
+		$fh = @fopen($wordpressRealPath.'/wp-content/plugins/sermonbrowser/single.php', 'w');
+		if ($fh) {
+			fwrite($fh, strtr(stripslashes($single), $sdict));
+			fclose($fh);
+		} else {
 			echo '<div id="message" class="updated fade"><p><b>';
-			_e('Error: The upload folder you have specified does not exist.', $sermon_domain);
-			echo '</b></div>';
-			break;
-		default: 
-		//*			
-			$fh = @fopen($wordpressRealPath.'/wp-content/plugins/sermonbrowser/multi.php', 'w');
-			if ($fh) {
-				fwrite($fh, strtr(stripslashes($multi), $mdict));
-				fclose($fh);
-			} else {
-				echo '<div id="message" class="updated fade"><p><b>';
-				_e('Could not save multi template. Please check permission for multi.php in plugin folder', $sermon_domain);
-				echo '</b></div>';			
-			}
-			$fh = @fopen($wordpressRealPath.'/wp-content/plugins/sermonbrowser/single.php', 'w');
-			if ($fh) {
-				fwrite($fh, strtr(stripslashes($single), $sdict));
-				fclose($fh);
-			} else {
-				echo '<div id="message" class="updated fade"><p><b>';
-				_e('Could not save single template. Please check permission for single.php in plugin folder', $sermon_domain);
-				echo '</b></div>';			
-			}
-	   	    $fh = @fopen($wordpressRealPath.'/wp-content/plugins/sermonbrowser/style.css', 'w');
-			if ($fh) {
-				fwrite($fh, $style);
-				fclose($fh);
-			} else {
-				echo '<div id="message" class="updated fade"><p><b>';
-				_e('Could not save style template. Please check permission for stlye.css in plugin folder', $sermon_domain);
-				echo '</b></div>';			
-			}
-		//*/	
+			_e('Could not save single template. Please check permission for single.php in plugin folder', $sermon_domain);
+			echo '</b></div>';			
+		}
+   	    $fh = @fopen($wordpressRealPath.'/wp-content/plugins/sermonbrowser/style.css', 'w');
+		if ($fh) {
+			fwrite($fh, $style);
+			fclose($fh);
+		} else {
 			echo '<div id="message" class="updated fade"><p><b>';
-			_e('Options saved properly.', $sermon_domain);
-			echo '</b></div>';		
-			break;
-	   }
+			_e('Could not save style template. Please check permission for stlye.css in plugin folder', $sermon_domain);
+			echo '</b></div>';			
+		}
+		echo '<div id="message" class="updated fade"><p><b>';
+		_e('Options saved properly.', $sermon_domain);
+		echo '</b></div>';		
 	}
 	if ($_POST['uninstall']) {
 		if ($_POST['wipe'] == 1) {
@@ -1034,14 +627,23 @@ function bb_options() {
 		$table_name = $wpdb->prefix."sb_stuff";
 		if ($wpdb->get_var("show tables like '$table_name'") == $table_name) $wpdb->query("DROP TABLE $table_name");
 		
+		delete_option('sb_podcast');
 		delete_option('sb_sermon_upload_dir');
 		delete_option('sb_sermon_upload_url');
 		delete_option('sb_sermon_single_form');
 		delete_option('sb_sermon_multi_form');
-		delete_option('sb_podcast');
 		delete_option('sb_sermon_db_version');
 		delete_option('sb_sermon_style');
 		echo '<div id="message" class="updated fade"><p><b>'.__('Uninstall completed. Please deactivate the plugin', $sermon_domain).'</b></div>';
+	}
+	
+	function display_error ($message) {
+		return	'<tr><td align="right" style="color:#AA0000; font-weight:bold">'.__('Error', $sermon_domain).':</td>'.
+				'<td style="color: #AA0000">'.$message.'</td></tr>';
+	}
+	function display_warning ($message) {
+		return	'<tr><td align="right" style="color:#FF8C00; font-weight:bold">'.__('Warning', $sermon_domain).':</td>'.
+				'<td style="color: #FF8C00">'.$message.'</td></tr>';
 	}
 ?>
 	<form method="post">
@@ -1058,8 +660,27 @@ function bb_options() {
 			</tr>
 			<tr>
 				<td align="right"><?php _e('Private podcast feed', $sermon_domain) ?>: </td>
-				<td><?php echo get_bloginfo('url').$sef.'/?podcast' ?></td>
+				<td><?php echo $sef.'/?podcast' ?></td>
 			</tr>
+			<?php
+				$checkSermonUpload = checkSermonUploadable();
+				if ($checkSermonUpload=="unwriteable") 
+					echo display_error (__('The upload folder is not writeable. You need to CHMOD the folder to 666 or 777.', $sermon_domain));
+				elseif ($checkSermonUpload=="notexist") 
+					display_error (__('The upload folder you have specified does not exist.', $sermon_domain));
+				$allow_uploads = ini_get('file_uploads');
+				$max_filesize = return_kbytes(ini_get('upload_max_filesize'));
+				$max_post = return_kbytes(ini_get('post_max_size'));
+				$max_execution = ini_get('max_execution_time');
+				$max_input = ini_get('max_input_time');
+				$max_memory = return_kbytes(ini_get('memory_limit'));
+				if ($allow_uploads == '0') echo display_error(__('Your php.ini file does not allow uploads. Please change file_uploads in php.ini.', $sermon_domain));
+				if ($max_filesize < 15360) echo display_warning(__('The maximum file size you can upload is only ', $sermon_domain).$max_filesize.__('k. Please change upload_max_filesize to at least 15M in php.ini.', $sermon_domain));
+				if ($max_post < 15360) echo display_warning(__('The maximum file size you send through the browser is only ', $sermon_domain).$max_post.__('k. Please change post_max_size to at least 15M in php.ini.', $sermon_domain));
+				if ($max_execution < 600) echo display_warning(__('The maximum time allowed for any script to run is only ', $sermon_domain).$max_execution.__(' seconds. Please change max_execution_time to at least 600 in php.ini.', $sermon_domain));
+				if ($max_input < 600) echo display_warning(__('The maximum time allowed for an upload script to run is only ', $sermon_domain).$max_input.__(' seconds. Please change max_input_time to at least 600 in php.ini.', $sermon_domain));
+				if ($max_memory < 16384) echo display_warning(__('The maximum amount of memory allowed is only ', $sermon_domain).$max_memory.__('k. Please change memory_limit to at least 16M in php.ini.', $sermon_domain));
+			?>
 		</table>		
 		<p class="submit"><input type="submit" name="resetdefault" value="<?php _e('Reset to defaults', $sermon_domain) ?>"  />&nbsp;<input type="submit" name="save" value="<?php _e('Save', $sermon_domain) ?> &raquo;" /></p> 
 	</div>	
@@ -1100,152 +721,6 @@ function bb_options() {
 <?php 
 }
 
-// manual
-function bb_help() {
-?>	
-	<style>div.wrap h3, div.wrap h4, div.wrap h5 {margin-bottom: 0; margin-top: 2em} div.wrap p {margin-left: 2em; margin-top: 0.5em} div.wrap h3 {border-top: 1px solid #555555; padding-top: 0.5em}</style>
-	<div class="wrap">
-		<h2><?php _e('Help page', $sermon_domain) ?></h2>
-		<h3>Screencasts</h3>
-		<p>If you need help with using sermonbrowser for the first time, these five minute screencast tutorials should be your first port of call:</p>
-		<ul>
-			<li><a href="http://www.4-14.org.uk/sermonbrowser-tutorial/tutorial-1.html" target="_blank">Installation and Overview</a>.</li>
-			<li><a href="http://www.4-14.org.uk/sermonbrowser-tutorial/tutorial-2.html" target="_blank">Basic Options</a>.</li>
-			<li><a href="http://www.4-14.org.uk/sermonbrowser-tutorial/tutorial-3.html" target="_blank">Preachers, Series and Services</a>.</li>
-			<li><a href="http://www.4-14.org.uk/sermonbrowser-tutorial/tutorial-4.html" target="_blank">Entering a new sermon</a>.</li>
-			<li><a href="http://www.4-14.org.uk/sermonbrowser-tutorial/tutorial-5.html" target="_blank">Editing a sermon and adding embedded video</a>.</li>
-		</ul>
-		<h4>Template tags</h4>
-		<p>If you want to change the way SermonBrowser displays on your website, you'll need to edit the templates and/or CSS file. Check out <a href="#templatetags">this guide to the template tags</a>.</p>
-		<h3>Frequently asked questions</h3>
-		<ul>
-			<li><a href="#nosermons">I've activated the plugin, and entered in a few sermons, but they are not showing up to my website users. Where are they?</a></li>
-			<li><a href="#chmod">What does the error message "Error: The upload folder is not writeable. You need to CHMOD the folder to 666 or 777." mean?</a></li>
-			<li><a href="#uploaderrors">SermonBrowser spends a long time attempting to upload files, but the file is never uploaded. What's happening?</a></li>
-			<li><a href="#audioplayer">Why are my MP3 files are appearing as an icon, rather than as a player, as I've seen on other SermonBrowser sites?</a></li>
-			<li><a href="#differentversions">How do I change the Bible version from the ESV?</a></li>
-			<li><a href="#chipmunk">When using the 1pixelout audio player, my pastor sounds like a chipmunk! What's going on?</a>
-			<li><a href="#sidebar">How do I get recent sermons to display in my sidebar?</a></li>
-			<li><a href="#diskspace">My host only allows me a certain amount of disk space, and I have so many sermons uploaded, I've run out of space! What can I do?</a></li>
-			<li><a href="#videos">How do I upload videos to SermonBrowser?</a></li>
-			<li><a href="#poweredby">Can I turn off the "Powered by Sermonbrowser" link?</a></li>
-			<li><a href="#publicprivate">What is the difference between the public and private podcast feeds?</a></li>
-			<li><a href="#differentpodcasts">On the sermons page, what is the difference between subscribing to <b>full</b> podcast, and subscribing to a <b>custom</b> podcast?</a></li>
-			<li><a href="#itunes">Why doesn't iTunes recognise the podcast links?</a></li>
-			<li><a href="#sortorder">Can I change the default sort order of the sermons?</a></li>
-			<li><a href="#pagenotfound">Why do I get a page not found error when I click on my podcast feed?</a></li>
-			<li><a href="#changedisplay">Can I change the way sermons are displayed?</a></li>
-			<li><a href="#changesearchform">The search form is too big/too small for my layout. How do I make it narrower/wider?</a></li>
-			<li><a href="#bibletextmissing">Why is sometimes the Bible text missing?</a></li>
-			<li><a href="#exceededquota">Why does my sermon page say I have exceeded my quota for ESV lookups?</a></li>
-			<li><a href="#icons">How can I change the icons that Sermon Browser uses, or add new icons?</a></li>
-		</ul>
-		<hr style="width: 50%">
-		<h4 id="nosermons">I've activated the plugin, and entered in a few sermons, but they are not showing up to my website users. Where are they?</h4>
-		<p>SermonBrowser only displays your sermons where you choose. You need to create the page/post where you want the sermons to appear (or edit an existing one), and add <b>[sermons]</b> to the page/post. You can also add some explantory text if you wish. If you do so, the text will appear on <i>all</i> your sermons pages. If you want your text to only appear on the list of sermons, not on individual sermon pages, you need to edit the SermonBrowser templates (see below).</p>
-		<h4 id="chmod">What does the error message "Error: The upload folder is not writeable. You need to CHMOD the folder to 666 or 777." mean?</h4>
-		<p>SermonBrowser tries to set the correct permissions on your folders for you, but sometimes restrictions mean that you have to do it yourself. You need to make sure that SermonBrowser is able to write to your sermons upload folder (usually /wp-content/uploads/sermons/). <a href="http://samdevol.com/wordpress-troubleshooting-permissions-chmod-and-paths-oh-my/" target="_blank">This tutorial</a> explains how to use the free FileZilla FTP software to do this.</p>
-		<h4 id="uploaderrors">SermonBrowser spends a long time attempting to upload files, but the file is never uploaded. What's happening?</h4>
-		<p>The most likely cause is that you're reaching either the maximum filesize that can be uploaded, or the maximum time a PHP script can run for. <a href="http://articles.techrepublic.com.com/5100-10878_11-5272345.html" target="_blank">Editing your php.ini</a> may help overcome these problems - but if you're on shared hosting, it's possible your host has set maximum limits you cannot change. If that's the case, you should upload your files via FTP. This is generally a better option than using your browser, particularly if you have several files to upload. If you do edit your php.ini file, these settings should be adequate:</p>
-		<p style="font-family:monospace">file_uploads = On<br />
-		upload_max_filesize = 15M<br />
-		post_max_size = 15M<br />
-		max_execution_time = 600<br/>
-		max_input_time = 600<br />
-		memory_limit = 16M<br /></p>
-		<h4 id="audioplayer">Why are my MP3 files are appearing as an icon, rather than as a player, as I've seen on other SermonBrowser sites?</h4>
-		<p>You need to install and activate the <a href="http://www.1pixelout.net/code/audio-player-wordpress-plugin/">1pixelout audio player</a> plugin. You can also customise the plugin so that its colours match your site.</p>
-		<h4 id="differentversions">How do I change the Bible version from the ESV?</h4>
-		<p>Five Bible versions are supported by Sermon Browser: the English Standard Version, American Standard Version, King James Version, Young's Literal Transaltion and the World English Bible. To change to one of these other versions, go to Options, and edit the single template. Replace [esvtext] with [asvtext], [kjvtext], [ylttext] or [webtext]. Thanks go to <a href="http://www.crosswaybibles.org/" target="_blank">Crossway</a> for providing access to the ESV, and <a href="http://www.lstones.com/" target="_blank">Living Stones Ministries</a> for the other versions.</p>
-		<p>If you're desperate to use other versions not currently supported, you can manage it using other Wordpress plugins (albeit with reduced functionality).  However, if you're desperate to use other versions, you can manage it using other Wordpress plugins (albeit with reduced functionality). The <a href="http://wordpress.org/extend/plugins/ebibleicious/">eBibleicious</a> plugin allows for NASB, MSG, KJV, NKJV, ESV, HCSB, and NCV (use it in 'snippet' mode). However, there are three disadvantages. (1) To use it, you'll need to register for an API key (although it is free). (2) It uses Javascript so search engines won't see the Bible text, and nor will users with javascript turned off. (3) Most importantly, it only shows a maximum of four verses (the ESV shows up to 500 verses!).
-		<p>You can also use the <a href="http://www.logos.com/reftagger">RefTagger</a> plugin, though this shows even fewer verses. Even worse (for our purposes) the bible passage only shows when you hover over a special link with your mouse. It does, however, provide an even longer list of translations. Please be aware that both RefTagger and eBibleicious will add bible text to bible references across your whole website, not just your sermons pages.</p>
-		<p>To use either of these alternatives, just download, install and activate them as you would for any other plugin. Check their settings (make sure you enter get an API key if you're using eBiblicious). You then need to make one change to your SermonBrowser options. In the <i>Single Sermon form</i>, look for <b>[esvtext]</b> and replace it with <b>[biblepassage]</b>. (By default it's right at the end of the code.)</p>
-		<h4 id="chipmunk">When using the 1pixelout audio player, my pastor sounds like a chipmunk! What's going on?</h4>
-		<p>This 'feature' is caused by a well-known bug in Adobe flash. In order for the files to play correctly, when they are saved, the sample rate needs to be set at a multiple of 11.025kHz (i.e. 11.025, 22.05 or 44.1).</p>
-		<h4 id="sidebar">How do I get recent sermons to display in my sidebar?</h4>
-		<p>If your WordPress theme supports widgets, just go to Design and choose <a href="widgets.php">Widgets</a>. There you easily can add the Sermons widget to your sidebar. If your theme doesn't support widgets, you'll need to edit your theme manually. Usually, you'll be editing a file called <b>sidebar.php</b>, but your theme may give it a different name. Add the following code:</p>
-		<p style="font-family:monospace">&lt;?php if (function_exists('display_sermons')) display_sermons(array('display_preacher' => 0, 'display_passage' => 1, 'preacher' => 0, 'service' => 0, 'series' => 0, 'limit' => 5)) ?></code>
-		<p>Each of the numbers in that line can be changed. <b>display_preacher</b> and <b>display_passage</b> affect what is displayed (0 is off, 1 is on). <b>preacher</b>, <b>service</b> and <b>series</b> allow you to limit the output to a particular preacher, service or series. Simply change the number of the ID of the preacher/services/series you want to display. You can get the ID from the Preachers page, or the Series & Services page. 0 shows all preachers/services/series. <b>limit</b> is simply the maximum number of sermons you want displayed.</p>
-		<h4 id="diskspace">My host only allows me a certain amount of disk space, and I have so many sermons uploaded, I've run out of space! What can I do?</h4>
-		<p>You could, of course, change your host to someone a little more generous! I use <a href="http://www.vortechhosting.com/shared/windows.php">VortechHosting</a> for low traffic sites (5Gb of disk space for less than $10 a month), and <a href="https://www.liquidweb.com/cart/content/vps/">LiquidWeb VPS</a> for higher traffic sites (20Gb disk space for $60 a month). You should also make sure you encode your sermons at a medium to high compression. Usually, 22.05kHz, 48kbps mono is more than adequate (you could probably go down to 32kbps for even higher compression). 48kbps means every minute of recording takes up 360kb of disk space, so a thirty minute sermon will just over 10Mb. At this setting, 5Gb would be enough for over 450 sermons.</p>
-		<p>If you can't change your host, you can still use SermonBrowser. You'll just have to upload your sermon files to another site - preferably a free one! We recommend <a href="http://www.odeo.com/" target="blank">Odeo</a>. If you want to use Odeo's audio player on your website, copy the embed code they give you, and when you add your sermon to SermonBrowser, select "Enter embed code:" and paste it in. If you want to use the standard 1pixelout audio player, copy the "Download MP3" link Odeo give you, and when you add your sermon to SermonBrowser, select "Enter an URL" and paste it in.</p>
-		<h4 id="videos">How do I upload videos to SermonBrowser?</h4>
-		<p>You can't - but you can upload videos to other sites, then embed them in your sermons. You can use any site that allows you to embed your video in other websites, including <a href="http://www.youtube.com/">YouTube</a>, but we recommend <a href="http://video.google.com/videouploadform">GoogleVideo</a> as the most suitable for sermons. That's because most video-sharing sites are designed for relatively short clips of 10 minutes or so, but GoogleVideo will accept videos of any length - and there are no quotas for the maximum size of a video, nor the number of videos you can store. Once your video is uploaded and available on Google Video, you can copy the embed code it gives you, edit your sermon, select "Enter embed code" and paste it in.</p>
-		<h4 id="poweredby">Can I turn off the "Powered by Sermonbrowser" link?</h4>
-		<p>The link is there so that people from other churches who listen to your sermons can find out about SermonBrowser themselves. But if you'd like to remove the link, just remove <b>[creditlink]</b> from the templates in SermonBrowser Options</a>.</p>
-		<h4 id="publicprivate">What is the difference between the public and private podcast feeds?</h4>
-		<p>In SermonBrowser options, you are able to change the address of the public podcast feed. This is the feed that is shown on your sermons page, and is usually the same as your private feed. However, if you use a service such as <a href="http://www.feedburner.com/" target="_blank">FeedBurner</a>, you can use your public feed to send data to feedburner, and change your private feed to your Feedburner address. If you do not use a service like Feedburner, just make sure your public and private feeds are the same.</p> 
-		<h4 id="differentpodcasts">On the sermons page, what is the difference between subscribing to our podcast, and subscribing to a podcast for this search?</h4>
-		<p>The link called <strong>subscribe to full podcast</strong> gives a podcast of <em>all</em> sermons that you add to your site through SermonBrowser. But it may be that some people may just want to subscribe to a feed for certain speakers, or for a certain service. If they wish to do this, they should set the search filters and perform their search, then click on the <strong>Subscribe to custom podcast </strong>link. This will give them a podcast according to the filter they selected. You could also copy this link, and display it elsewhere on the site - for example to provide separate feeds for morning and evening services.</p>
-		<h4 id="iTunes">Why doesn't iTunes recognise the podcast links?</h4>
-		<p>iTunes requires its own special links that are slightly different from other podcasting software. If you would like to display these links, you need to edit your template and add the tags [itunes_podcast] and [itunes_podcast_for_search].</p>
-		<h4 id="sortorder">Can I change the default sort order of the sermons?</h4>
-		<p>Unfortunately not. Unless the viewer specified otherwise, Sermonbrowser always displays the most recent sermons at the top.</p>
-		<h4 id="pagenotfound">Why do I get a page not found error when I click on my podcast feed?</h4>
-		<p>You've probably changed the address of your public feed. Try changing it back to the same value as your private feed in Sermon Options.</p>
-		<h4 id="changedisplay">Can I change the way sermons are displayed?</h4>
-		<p>Yes, definately, although you need to know a little HTML and/or CSS. SermonBrowser has a powerful templating function, so you can exclude certain parts of the output (e.g. if you don't want the links to other sermons preached on the same day to be displayed). To edit the templates, go to SermonBrowser Options. Below is a reference for all the <a href="templatetags">template tags</a> you need. If you just want to change the way the output looks, without changing what is displayed, you need to edit the CSS stylesheet, also in SermonBrowser Options. (See one example, below).</p>
-		<h4 id="changesearchform">The search form is too big/too small for my layout. How do I make it narrower/wider?</h4>
-		<p>The search form is set to roughly 500 pixels, which should be about right for most WordPress templates. To change it, look for a line in the CSS stylesheet that begins <b>table.sermonbrowser td.field input</b>, and change the width specified after it. To make the form narrower, reduce the width. To make it bigger, increase the width. You'll also need to change the width of the date fields on the line below, which should be 20 pixels smaller.</p>
-		<h4 id="bibletextmissing">Why is sometimes the Bible text missing?</h4>
-		<p>This usually happens for one of three reasons: (1) If the website providing the service is down. If you can't see Genesis 1 in the <a href="http://www.esvapi.org/v2/rest/passageQuery?key=IP&amp;passage=Gen+1&amp;include-headings=false">ESV</a> or <a href="http://api.seek-first.com/v1/BibleSearch.php?type=lookup&appid=seekfirst&startbooknum=1&startchapter=1&startverse=1&endbooknum=1&endchapter=1&endverse=30&version=KJV">the other versions</a>then the problem is with those websites. They're rarely down for long. (2) If you specify an invalid bible passage (e.g. Romans 22). If this is the case your sermon page will display <em>ERROR: No results were found for your search.</em> (3) If your webhost has disabled <strong>allow_url_fopen</strong> and cURL. Some cheaper webhosts have these essential features switched off. If they have, you won't be able to use this facility.</p>
-		<h4 id="exceededquota">Why does my sermon page say I have exceeded my quota for ESV lookups?</h4>
-		<p>The ESV website only allows 5,000 lookups per day from each IP address. That should be enough for most users of SermonBrowser. However, if you are using a shared host, there will be hundreds (perhaps thousands) of other websites on the same IP address as you. If any are also using the ESV API, they also get counted towards that total. If you are using less than 5,000 lookups per day (i.e. you are having less than 5,000 pageviews of your sermon pages), and you receive the error message you'll need to do two things in order to continue to display the text. (1) Sign up for an <a href="http://www.esvapi.org/signup">ESV API key</a>. (2) Edit frontend.php (one of the SermonBrowser files). Look for line 66, and replace <i>&hellip;passageQuery?key=<b>IP</b>&passage=&hellip;</i> with <i>&hellip;passageQuery?key=<b>YOURAPIKEY</b>&passage=&hellip;</i>.</p>
-		<p>If you <i>are</i> having more than 5,000 page views per day, then this won't help. Instead, leave a message in the <a href="http://www.4-14.org.uk/sermon-browser#comments">SermonBrowser comments</a> explaining your problem. SermonBrowser could probably be modified to provide a caching mechanism to reduce the likelihood of this error occurring, if there is demand.</p>
-		<h4 id="icons">How can I change the file icons that Sermon Browser uses, or add new icons?</h4>
-		<p>You'll need to edit the <b>filetypes.php</b> file that comes with Sermon Browser. The icon is chosen on the basis of the file extension (or in the case of URLs the file extension then the site address). If you do create new icons for other filetypes, consider sending them to the author so they can be included in future versions of the plugin.</p>
-		<h3 id="templatetags">Template tags</h3>
-		<p>If you want to change the output of Sermon Browser, you'll need to edit the templates. You'll need to understand the basics of HTML and CSS, and to know the special SermonBrowser template tags. There are two templates, one (called "results page") is used to produce the search results on the main sermons page. The other template (called sermon page) is used to produce the page for single sermon. Most tags can be used in both templates, but some are specific.</p>
-		<h4>Results page only</h4>
-		<ul>
-			<li><b>[filters_form]</b> - The search form which allows filtering by preacher, series, date, etc. <i>multi-sermons page only</i></li>
-			<li><b>[sermons_count]</b> - The number of sermons which match the current search critera. </li>
-			<li><b>[sermons_loop][/sermons_loop]</b> - These two tags should be placed around the output for one sermon. (That is all of the tags that return data about sermons should come between these two tags.)</li>
-			<li><b>[first_passage]</b> - The main bible passage for this sermon</li>
-			<li><b>[previous_page]</b> - Displays the link to the previous page of search results (if needed)</li>
-			<li><b>[next_page]</b> - Displays the link to the next page of search results (if needed)</li>
-			<li><b>[podcast]</b> - Link to the podcast of all sermons</li>
-			<li><b>[podcast_for_search]</b> - Link to the podcast of sermons that match the current search</li>
-			<li><b>[itunes_podcast]</b> - iTunes (itpc://) link to the podcast of all sermons</li>
-			<li><b>[itunes_podcast_for_search]</b> - iTunes (itpc://) link to the podcast of sermons that match the current search</li>
-			<li><b>[podcasticon]</b> - Displays the icon used for the main podcast</li>
-			<li><b>[podcasticon_for_search]</b> - Displays the icon used for the custom podcast</li>
-		</ul>
-		<h4>Both results page and sermon page</h4>
-		<ul>
-			<li><b>[sermon_title]</b> - The title of the sermon</li>
-			<li><b>[preacher_link]</b> - The name of the preacher (hyperlinked to his search results)</li>
-			<li><b>[series_link]</b> - The name of the series (hyperlinked to search results)</li>
-			<li><b>[service_link]</b> - The name of the service (hyperlinked to search results)</li>
-			<li><b>[date]</b> - The date of the sermon</li>
-			<li><b>[files_loop][/files_loop]</b> - These two tags should be placed around the [file] tag if you want to display all the files linked with to sermon. They are not needed if you only want to display the first file.</li>
-			<li><b>[file]</b> - Displays the files and external URLs</li>
-			<li><b>[embed_loop][/embed_loop]</b> - These two tags should be placed around the [embed] tag if you want to display all the embedded objects linked to this sermon. They are not needed if you only want to display the first embedded object.</li>
-			<li><b>[embed]</b> - Displays an embedded object (e.g. video)</li>
-			<li><b>[creditlink]</b> - displays a "Powered by Sermon Browser" link.</li>
-		</ul>
-		<h4>Sermon page only</h4>
-		<ul>
-			<li><b>[preacher_description]</b> - The description of the preacher.</li>
-			<li><b>[preacher_image]</b> - The photo of the preacher.</li>
-			<li><b>[passages_loop][/passages_loop]</b> - These two tags should be placed around the [passage] tag if you want to display all the passages linked with to sermon.</li>
-			<li><b>[passage]</b> - Displays the reference of the bible passage with the book name hyperlinked to search results.</li>
-			<li><b>[next_sermon]</b> - Displays a link to the next sermon preached (excluding ones preached on the same day)</li>
-			<li><b>[prev_sermon]</b> - Displays a link to the previous sermon preached</li>
-			<li><b>[sameday_sermon]</b> - Displays a link to other sermons preached on that day</li>
-			<li><b>[tags]</b> - Displays the tags for that sermons</li>
-			<li><b>[esvtext]</b> - Displays the full text of the ESV Bible for all passages linked to that sermon.</li>
-			<li><b>[asvtext]</b> - Displays the full text of the ASV Bible for all passages linked to that sermon.</li>
-			<li><b>[kjvtext]</b> - Displays the full text of the KJV Bible for all passages linked to that sermon.</li>
-			<li><b>[ylttext]</b> - Displays the full text of the YLT Bible for all passages linked to that sermon.</li>
-			<li><b>[webtext]</b> - Displays the full text of the WEB Bible for all passages linked to that sermon.</li>
-			<li><b>[biblepassage]</b> - Displays the reference of the bible passages for that sermon. Useful for utilising other bible plugins (see <a href="#otherversions">FAQ</a>).</li>
-	</div>
-	</form>
-<?php 
-}
-
-
 function bb_manage_preachers() {
 	global $wpdb, $sermon_domain;
 	global $wordpressRealPath;
@@ -1259,7 +734,7 @@ function bb_manage_preachers() {
 	if ($_POST['save']) {
 		$name = mysql_real_escape_string($_POST['name']);
 		$description = mysql_real_escape_string($_POST['description']);
-		
+		$error = false;
 		$pid = (int) $_REQUEST['pid'];
 		
 		if (empty($_FILES['upload']['name'])) {
@@ -1271,7 +746,14 @@ function bb_manage_preachers() {
 			$dest = $wordpressRealPath.get_option('sb_sermon_upload_dir').'images/'.$filename;
 			if (move_uploaded_file($_FILES['upload']['tmp_name'], $dest)) {
 				$filename = $prefix.mysql_real_escape_string($filename);
+			}else {
+			    $error = true;
+			    echo '<div id="message" class="updated fade"><p><b>'.__('Upload failed.', $sermon_domain).'</b></div>';
 			}
+		} else {
+		        $error = true;
+		    	echo '<div id="message" class="updated fade"><p><b>'.__('Upload failed.', $sermon_domain).'</b></div>';
+		    			    
 		}
 		
 		if ($pid == 0) {
@@ -1286,7 +768,7 @@ function bb_manage_preachers() {
 		    $wpdb->query("UPDATE {$wpdb->prefix}sb_preachers SET name = '$name', description = '$description', image = '' WHERE id = $pid");
 		    @unlink($wordpressRealPath.get_option('sb_sermon_upload_dir').'images/'.mysql_real_escape_string($_POST['old']));
 		}
-		echo "<script>document.location = '$url/wp-admin/admin.php?page=sermonbrowser/preachers.php&saved=true';</script>";
+		if(!$error) echo "<script>document.location = '$url/wp-admin/admin.php?page=sermonbrowser/preachers.php&saved=true';</script>";
 	}
 	
 	if ($_GET['act'] == 'kill') {
@@ -1584,7 +1066,6 @@ function bb_manage_everything() {
 function bb_uploads() {
 	global $wpdb, $filetypes, $sermon_domain;
 	global $wordpressRealPath;
-	ini_set('max_input_time','600');
 	// sync
 	bb_scan_dir();
 	
@@ -2619,4 +2100,410 @@ function checkSermonUploadable() {
 	return false;
 }
 
+// manual
+function bb_help() {
+?>	
+	<style>div.wrap h3, div.wrap h4, div.wrap h5 {margin-bottom: 0; margin-top: 2em} div.wrap p {margin-left: 2em; margin-top: 0.5em} div.wrap h3 {border-top: 1px solid #555555; padding-top: 0.5em}</style>
+	<div class="wrap">
+		<h2><?php _e('Help page', $sermon_domain) ?></h2>
+		<h3>Screencasts</h3>
+		<p>If you need help with using sermonbrowser for the first time, these five minute screencast tutorials should be your first port of call:</p>
+		<ul>
+			<li><a href="http://www.4-14.org.uk/sermonbrowser-tutorial/tutorial-1.html" target="_blank">Installation and Overview</a>.</li>
+			<li><a href="http://www.4-14.org.uk/sermonbrowser-tutorial/tutorial-2.html" target="_blank">Basic Options</a>.</li>
+			<li><a href="http://www.4-14.org.uk/sermonbrowser-tutorial/tutorial-3.html" target="_blank">Preachers, Series and Services</a>.</li>
+			<li><a href="http://www.4-14.org.uk/sermonbrowser-tutorial/tutorial-4.html" target="_blank">Entering a new sermon</a>.</li>
+			<li><a href="http://www.4-14.org.uk/sermonbrowser-tutorial/tutorial-5.html" target="_blank">Editing a sermon and adding embedded video</a>.</li>
+		</ul>
+		<h4>Template tags</h4>
+		<p>If you want to change the way SermonBrowser displays on your website, you'll need to edit the templates and/or CSS file. Check out <a href="#templatetags">this guide to the template tags</a>.</p>
+		<h3>Frequently asked questions</h3>
+		<ul>
+			<li><a href="#nosermons">I've activated the plugin, and entered in a few sermons, but they are not showing up to my website users. Where are they?</a></li>
+			<li><a href="#chmod">What does the error message "Error: The upload folder is not writeable. You need to CHMOD the folder to 666 or 777." mean?</a></li>
+			<li><a href="#uploaderrors">SermonBrowser spends a long time attempting to upload files, but the file is never uploaded. What's happening?</a></li>
+			<li><a href="#audioplayer">Why are my MP3 files are appearing as an icon, rather than as a player, as I've seen on other SermonBrowser sites?</a></li>
+			<li><a href="#differentversions">How do I change the Bible version from the ESV?</a></li>
+			<li><a href="#chipmunk">When using the 1pixelout audio player, my pastor sounds like a chipmunk! What's going on?</a>
+			<li><a href="#sidebar">How do I get recent sermons to display in my sidebar?</a></li>
+			<li><a href="#diskspace">My host only allows me a certain amount of disk space, and I have so many sermons uploaded, I've run out of space! What can I do?</a></li>
+			<li><a href="#videos">How do I upload videos to SermonBrowser?</a></li>
+			<li><a href="#poweredby">Can I turn off the "Powered by Sermonbrowser" link?</a></li>
+			<li><a href="#publicprivate">What is the difference between the public and private podcast feeds?</a></li>
+			<li><a href="#differentpodcasts">On the sermons page, what is the difference between subscribing to <b>full</b> podcast, and subscribing to a <b>custom</b> podcast?</a></li>
+			<li><a href="#itunes">Why doesn't iTunes recognise the podcast links?</a></li>
+			<li><a href="#sortorder">Can I change the default sort order of the sermons?</a></li>
+			<li><a href="#pagenotfound">Why do I get a page not found error when I click on my podcast feed?</a></li>
+			<li><a href="#changedisplay">Can I change the way sermons are displayed?</a></li>
+			<li><a href="#changesearchform">The search form is too big/too small for my layout. How do I make it narrower/wider?</a></li>
+			<li><a href="#bibletextmissing">Why is sometimes the Bible text missing?</a></li>
+			<li><a href="#exceededquota">Why does my sermon page say I have exceeded my quota for ESV lookups?</a></li>
+			<li><a href="#icons">How can I change the icons that Sermon Browser uses, or add new icons?</a></li>
+		</ul>
+		<hr style="width: 50%">
+		<h4 id="nosermons">I've activated the plugin, and entered in a few sermons, but they are not showing up to my website users. Where are they?</h4>
+		<p>SermonBrowser only displays your sermons where you choose. You need to create the page/post where you want the sermons to appear (or edit an existing one), and add <b>[sermons]</b> to the page/post. You can also add some explantory text if you wish. If you do so, the text will appear on <i>all</i> your sermons pages. If you want your text to only appear on the list of sermons, not on individual sermon pages, you need to edit the SermonBrowser templates (see below).</p>
+		<h4 id="chmod">What does the error message "Error: The upload folder is not writeable. You need to CHMOD the folder to 666 or 777." mean?</h4>
+		<p>SermonBrowser tries to set the correct permissions on your folders for you, but sometimes restrictions mean that you have to do it yourself. You need to make sure that SermonBrowser is able to write to your sermons upload folder (usually /wp-content/uploads/sermons/). <a href="http://samdevol.com/wordpress-troubleshooting-permissions-chmod-and-paths-oh-my/" target="_blank">This tutorial</a> explains how to use the free FileZilla FTP software to do this.</p>
+		<h4 id="uploaderrors">SermonBrowser spends a long time attempting to upload files, but the file is never uploaded. What's happening?</h4>
+		<p>The most likely cause is that you're reaching either the maximum filesize that can be uploaded, or the maximum time a PHP script can run for. <a href="http://articles.techrepublic.com.com/5100-10878_11-5272345.html" target="_blank">Editing your php.ini</a> may help overcome these problems - but if you're on shared hosting, it's possible your host has set maximum limits you cannot change. If that's the case, you should upload your files via FTP. This is generally a better option than using your browser, particularly if you have several files to upload. If you do edit your php.ini file, these settings should be adequate:</p>
+		<p style="font-family:monospace">file_uploads = On<br />
+		upload_max_filesize = 15M<br />
+		post_max_size = 15M<br />
+		max_execution_time = 600<br/>
+		max_input_time = 600<br />
+		memory_limit = 16M<br /></p>
+		<h4 id="audioplayer">Why are my MP3 files are appearing as an icon, rather than as a player, as I've seen on other SermonBrowser sites?</h4>
+		<p>You need to install and activate the <a href="http://www.1pixelout.net/code/audio-player-wordpress-plugin/">1pixelout audio player</a> plugin. You can also customise the plugin so that its colours match your site.</p>
+		<h4 id="differentversions">How do I change the Bible version from the ESV?</h4>
+		<p>Five Bible versions are supported by Sermon Browser: the English Standard Version, American Standard Version, King James Version, Young's Literal Transaltion and the World English Bible. To change to one of these other versions, go to Options, and edit the single template. Replace [esvtext] with [asvtext], [kjvtext], [ylttext] or [webtext]. Thanks go to <a href="http://www.crosswaybibles.org/" target="_blank">Crossway</a> for providing access to the ESV, and <a href="http://www.lstones.com/" target="_blank">Living Stones Ministries</a> for the other versions.</p>
+		<p>If you're desperate to use other versions not currently supported, you can manage it using other Wordpress plugins (albeit with reduced functionality).  However, if you're desperate to use other versions, you can manage it using other Wordpress plugins (albeit with reduced functionality). The <a href="http://wordpress.org/extend/plugins/ebibleicious/">eBibleicious</a> plugin allows for NASB, MSG, KJV, NKJV, ESV, HCSB, and NCV (use it in 'snippet' mode). However, there are three disadvantages. (1) To use it, you'll need to register for an API key (although it is free). (2) It uses Javascript so search engines won't see the Bible text, and nor will users with javascript turned off. (3) Most importantly, it only shows a maximum of four verses (the ESV shows up to 500 verses!).
+		<p>You can also use the <a href="http://www.logos.com/reftagger">RefTagger</a> plugin, though this shows even fewer verses. Even worse (for our purposes) the bible passage only shows when you hover over a special link with your mouse. It does, however, provide an even longer list of translations. Please be aware that both RefTagger and eBibleicious will add bible text to bible references across your whole website, not just your sermons pages.</p>
+		<p>To use either of these alternatives, just download, install and activate them as you would for any other plugin. Check their settings (make sure you enter get an API key if you're using eBiblicious). You then need to make one change to your SermonBrowser options. In the <i>Single Sermon form</i>, look for <b>[esvtext]</b> and replace it with <b>[biblepassage]</b>. (By default it's right at the end of the code.)</p>
+		<h4 id="chipmunk">When using the 1pixelout audio player, my pastor sounds like a chipmunk! What's going on?</h4>
+		<p>This 'feature' is caused by a well-known bug in Adobe flash. In order for the files to play correctly, when they are saved, the sample rate needs to be set at a multiple of 11.025kHz (i.e. 11.025, 22.05 or 44.1).</p>
+		<h4 id="sidebar">How do I get recent sermons to display in my sidebar?</h4>
+		<p>If your WordPress theme supports widgets, just go to Design and choose <a href="widgets.php">Widgets</a>. There you easily can add the Sermons widget to your sidebar. If your theme doesn't support widgets, you'll need to edit your theme manually. Usually, you'll be editing a file called <b>sidebar.php</b>, but your theme may give it a different name. Add the following code:</p>
+		<p style="font-family:monospace">&lt;?php if (function_exists('display_sermons')) display_sermons(array('display_preacher' => 0, 'display_passage' => 1, 'preacher' => 0, 'service' => 0, 'series' => 0, 'limit' => 5)) ?></code>
+		<p>Each of the numbers in that line can be changed. <b>display_preacher</b> and <b>display_passage</b> affect what is displayed (0 is off, 1 is on). <b>preacher</b>, <b>service</b> and <b>series</b> allow you to limit the output to a particular preacher, service or series. Simply change the number of the ID of the preacher/services/series you want to display. You can get the ID from the Preachers page, or the Series & Services page. 0 shows all preachers/services/series. <b>limit</b> is simply the maximum number of sermons you want displayed.</p>
+		<h4 id="diskspace">My host only allows me a certain amount of disk space, and I have so many sermons uploaded, I've run out of space! What can I do?</h4>
+		<p>You could, of course, change your host to someone a little more generous! I use <a href="http://www.vortechhosting.com/shared/windows.php">VortechHosting</a> for low traffic sites (5Gb of disk space for less than $10 a month), and <a href="https://www.liquidweb.com/cart/content/vps/">LiquidWeb VPS</a> for higher traffic sites (20Gb disk space for $60 a month). You should also make sure you encode your sermons at a medium to high compression. Usually, 22.05kHz, 48kbps mono is more than adequate (you could probably go down to 32kbps for even higher compression). 48kbps means every minute of recording takes up 360kb of disk space, so a thirty minute sermon will just over 10Mb. At this setting, 5Gb would be enough for over 450 sermons.</p>
+		<p>If you can't change your host, you can still use SermonBrowser. You'll just have to upload your sermon files to another site - preferably a free one! We recommend <a href="http://www.odeo.com/" target="blank">Odeo</a>. If you want to use Odeo's audio player on your website, copy the embed code they give you, and when you add your sermon to SermonBrowser, select "Enter embed code:" and paste it in. If you want to use the standard 1pixelout audio player, copy the "Download MP3" link Odeo give you, and when you add your sermon to SermonBrowser, select "Enter an URL" and paste it in.</p>
+		<h4 id="videos">How do I upload videos to SermonBrowser?</h4>
+		<p>You can't - but you can upload videos to other sites, then embed them in your sermons. You can use any site that allows you to embed your video in other websites, including <a href="http://www.youtube.com/">YouTube</a>, but we recommend <a href="http://video.google.com/videouploadform">GoogleVideo</a> as the most suitable for sermons. That's because most video-sharing sites are designed for relatively short clips of 10 minutes or so, but GoogleVideo will accept videos of any length - and there are no quotas for the maximum size of a video, nor the number of videos you can store. Once your video is uploaded and available on Google Video, you can copy the embed code it gives you, edit your sermon, select "Enter embed code" and paste it in.</p>
+		<h4 id="poweredby">Can I turn off the "Powered by Sermonbrowser" link?</h4>
+		<p>The link is there so that people from other churches who listen to your sermons can find out about SermonBrowser themselves. But if you'd like to remove the link, just remove <b>[creditlink]</b> from the templates in SermonBrowser Options</a>.</p>
+		<h4 id="publicprivate">What is the difference between the public and private podcast feeds?</h4>
+		<p>In SermonBrowser options, you are able to change the address of the public podcast feed. This is the feed that is shown on your sermons page, and is usually the same as your private feed. However, if you use a service such as <a href="http://www.feedburner.com/" target="_blank">FeedBurner</a>, you can use your public feed to send data to feedburner, and change your private feed to your Feedburner address. If you do not use a service like Feedburner, just make sure your public and private feeds are the same.</p> 
+		<h4 id="differentpodcasts">On the sermons page, what is the difference between subscribing to our podcast, and subscribing to a podcast for this search?</h4>
+		<p>The link called <strong>subscribe to full podcast</strong> gives a podcast of <em>all</em> sermons that you add to your site through SermonBrowser. But it may be that some people may just want to subscribe to a feed for certain speakers, or for a certain service. If they wish to do this, they should set the search filters and perform their search, then click on the <strong>Subscribe to custom podcast </strong>link. This will give them a podcast according to the filter they selected. You could also copy this link, and display it elsewhere on the site - for example to provide separate feeds for morning and evening services.</p>
+		<h4 id="iTunes">Why doesn't iTunes recognise the podcast links?</h4>
+		<p>iTunes requires its own special links that are slightly different from other podcasting software. If you would like to display these links, you need to edit your template and add the tags [itunes_podcast] and [itunes_podcast_for_search].</p>
+		<h4 id="sortorder">Can I change the default sort order of the sermons?</h4>
+		<p>Unfortunately not. Unless the viewer specified otherwise, Sermonbrowser always displays the most recent sermons at the top.</p>
+		<h4 id="pagenotfound">Why do I get a page not found error when I click on my podcast feed?</h4>
+		<p>You've probably changed the address of your public feed. Try changing it back to the same value as your private feed in Sermon Options.</p>
+		<h4 id="changedisplay">Can I change the way sermons are displayed?</h4>
+		<p>Yes, definately, although you need to know a little HTML and/or CSS. SermonBrowser has a powerful templating function, so you can exclude certain parts of the output (e.g. if you don't want the links to other sermons preached on the same day to be displayed). To edit the templates, go to SermonBrowser Options. Below is a reference for all the <a href="templatetags">template tags</a> you need. If you just want to change the way the output looks, without changing what is displayed, you need to edit the CSS stylesheet, also in SermonBrowser Options. (See one example, below).</p>
+		<h4 id="changesearchform">The search form is too big/too small for my layout. How do I make it narrower/wider?</h4>
+		<p>The search form is set to roughly 500 pixels, which should be about right for most WordPress templates. To change it, look for a line in the CSS stylesheet that begins <b>table.sermonbrowser td.field input</b>, and change the width specified after it. To make the form narrower, reduce the width. To make it bigger, increase the width. You'll also need to change the width of the date fields on the line below, which should be 20 pixels smaller.</p>
+		<h4 id="bibletextmissing">Why is sometimes the Bible text missing?</h4>
+		<p>This usually happens for one of three reasons: (1) If the website providing the service is down. If you can't see Genesis 1 in the <a href="http://www.esvapi.org/v2/rest/passageQuery?key=IP&amp;passage=Gen+1&amp;include-headings=false">ESV</a> or <a href="http://api.seek-first.com/v1/BibleSearch.php?type=lookup&appid=seekfirst&startbooknum=1&startchapter=1&startverse=1&endbooknum=1&endchapter=1&endverse=30&version=KJV">the other versions</a>then the problem is with those websites. They're rarely down for long. (2) If you specify an invalid bible passage (e.g. Romans 22). If this is the case your sermon page will display <em>ERROR: No results were found for your search.</em> (3) If your webhost has disabled <strong>allow_url_fopen</strong> and cURL. Some cheaper webhosts have these essential features switched off. If they have, you won't be able to use this facility.</p>
+		<h4 id="exceededquota">Why does my sermon page say I have exceeded my quota for ESV lookups?</h4>
+		<p>The ESV website only allows 5,000 lookups per day from each IP address. That should be enough for most users of SermonBrowser. However, if you are using a shared host, there will be hundreds (perhaps thousands) of other websites on the same IP address as you. If any are also using the ESV API, they also get counted towards that total. If you are using less than 5,000 lookups per day (i.e. you are having less than 5,000 pageviews of your sermon pages), and you receive the error message you'll need to do two things in order to continue to display the text. (1) Sign up for an <a href="http://www.esvapi.org/signup">ESV API key</a>. (2) Edit frontend.php (one of the SermonBrowser files). Look for line 66, and replace <i>&hellip;passageQuery?key=<b>IP</b>&passage=&hellip;</i> with <i>&hellip;passageQuery?key=<b>YOURAPIKEY</b>&passage=&hellip;</i>.</p>
+		<p>If you <i>are</i> having more than 5,000 page views per day, then this won't help. Instead, leave a message in the <a href="http://www.4-14.org.uk/sermon-browser#comments">SermonBrowser comments</a> explaining your problem. SermonBrowser could probably be modified to provide a caching mechanism to reduce the likelihood of this error occurring, if there is demand.</p>
+		<h4 id="icons">How can I change the file icons that Sermon Browser uses, or add new icons?</h4>
+		<p>You'll need to edit the <b>filetypes.php</b> file that comes with Sermon Browser. The icon is chosen on the basis of the file extension (or in the case of URLs the file extension then the site address). If you do create new icons for other filetypes, consider sending them to the author so they can be included in future versions of the plugin.</p>
+		<h3 id="templatetags">Template tags</h3>
+		<p>If you want to change the output of Sermon Browser, you'll need to edit the templates. You'll need to understand the basics of HTML and CSS, and to know the special SermonBrowser template tags. There are two templates, one (called "results page") is used to produce the search results on the main sermons page. The other template (called sermon page) is used to produce the page for single sermon. Most tags can be used in both templates, but some are specific.</p>
+		<h4>Results page only</h4>
+		<ul>
+			<li><b>[filters_form]</b> - The search form which allows filtering by preacher, series, date, etc. <i>multi-sermons page only</i></li>
+			<li><b>[sermons_count]</b> - The number of sermons which match the current search critera. </li>
+			<li><b>[sermons_loop][/sermons_loop]</b> - These two tags should be placed around the output for one sermon. (That is all of the tags that return data about sermons should come between these two tags.)</li>
+			<li><b>[first_passage]</b> - The main bible passage for this sermon</li>
+			<li><b>[previous_page]</b> - Displays the link to the previous page of search results (if needed)</li>
+			<li><b>[next_page]</b> - Displays the link to the next page of search results (if needed)</li>
+			<li><b>[podcast]</b> - Link to the podcast of all sermons</li>
+			<li><b>[podcast_for_search]</b> - Link to the podcast of sermons that match the current search</li>
+			<li><b>[itunes_podcast]</b> - iTunes (itpc://) link to the podcast of all sermons</li>
+			<li><b>[itunes_podcast_for_search]</b> - iTunes (itpc://) link to the podcast of sermons that match the current search</li>
+			<li><b>[podcasticon]</b> - Displays the icon used for the main podcast</li>
+			<li><b>[podcasticon_for_search]</b> - Displays the icon used for the custom podcast</li>
+		</ul>
+		<h4>Both results page and sermon page</h4>
+		<ul>
+			<li><b>[sermon_title]</b> - The title of the sermon</li>
+			<li><b>[preacher_link]</b> - The name of the preacher (hyperlinked to his search results)</li>
+			<li><b>[series_link]</b> - The name of the series (hyperlinked to search results)</li>
+			<li><b>[service_link]</b> - The name of the service (hyperlinked to search results)</li>
+			<li><b>[date]</b> - The date of the sermon</li>
+			<li><b>[files_loop][/files_loop]</b> - These two tags should be placed around the [file] tag if you want to display all the files linked with to sermon. They are not needed if you only want to display the first file.</li>
+			<li><b>[file]</b> - Displays the files and external URLs</li>
+			<li><b>[embed_loop][/embed_loop]</b> - These two tags should be placed around the [embed] tag if you want to display all the embedded objects linked to this sermon. They are not needed if you only want to display the first embedded object.</li>
+			<li><b>[embed]</b> - Displays an embedded object (e.g. video)</li>
+			<li><b>[creditlink]</b> - displays a "Powered by Sermon Browser" link.</li>
+		</ul>
+		<h4>Sermon page only</h4>
+		<ul>
+			<li><b>[preacher_description]</b> - The description of the preacher.</li>
+			<li><b>[preacher_image]</b> - The photo of the preacher.</li>
+			<li><b>[passages_loop][/passages_loop]</b> - These two tags should be placed around the [passage] tag if you want to display all the passages linked with to sermon.</li>
+			<li><b>[passage]</b> - Displays the reference of the bible passage with the book name hyperlinked to search results.</li>
+			<li><b>[next_sermon]</b> - Displays a link to the next sermon preached (excluding ones preached on the same day)</li>
+			<li><b>[prev_sermon]</b> - Displays a link to the previous sermon preached</li>
+			<li><b>[sameday_sermon]</b> - Displays a link to other sermons preached on that day</li>
+			<li><b>[tags]</b> - Displays the tags for that sermons</li>
+			<li><b>[esvtext]</b> - Displays the full text of the ESV Bible for all passages linked to that sermon.</li>
+			<li><b>[asvtext]</b> - Displays the full text of the ASV Bible for all passages linked to that sermon.</li>
+			<li><b>[kjvtext]</b> - Displays the full text of the KJV Bible for all passages linked to that sermon.</li>
+			<li><b>[ylttext]</b> - Displays the full text of the YLT Bible for all passages linked to that sermon.</li>
+			<li><b>[webtext]</b> - Displays the full text of the WEB Bible for all passages linked to that sermon.</li>
+			<li><b>[biblepassage]</b> - Displays the reference of the bible passages for that sermon. Useful for utilising other bible plugins (see <a href="#otherversions">FAQ</a>).</li>
+	</div>
+	</form>
+<?php 
+}
+
+function sb_default_multi_template () {
+$multi = <<<HERE
+<div class="sermon-browser">
+	<h2>Filters</h2>		
+	[filters_form]
+   	<div style="clear:both"><div class="podcastcustom"><a href="[podcast_for_search]">[podcasticon_for_search]</a><span><a href="[podcast_for_search]">Subscribe to custom podcast</a></span><br />(new sermons that match this <b>search</b>)</div><div class="podcastall"><a href="[podcast]">[podcasticon]</a><span><a href="[podcast]">Subscribe to full podcast</a></span><br />(<b>all</b> new sermons)</div>
+</div>
+	<h2>Sermons ([sermons_count])</h2>   	
+   	<div class="floatright">[next_page]</div>
+   	<div class="floatleft">[previous_page]</div>
+	<table class="sermons">
+	[sermons_loop]	
+		<tr>
+			<td class="sermon-title">[sermon_title]</td>
+		</tr>
+		<tr>
+			<td class="sermon-passage">[first_passage] (Part of the [series_link] series).</td>
+		</tr>
+		<tr>
+			<td class="files">[files_loop][file][/files_loop]</td>
+		</tr>
+		<tr>
+			<td class="urls">[urls_loop][url][/urls_loop]</td>
+		</tr>
+		<tr>
+			<td class="embed">[embed_loop][embed][/embed_loop]</td>
+		</tr>
+		<tr>
+			<td class="preacher">Preached by [preacher_link] on [date] ([service_link]).</td>
+		</tr>
+   	[/sermons_loop]
+	</table>
+   	<div class="floatright">[next_page]</div>
+   	<div class="floatleft">[previous_page]</div>
+   	[creditlink]
+</div>
+HERE;
+	return $multi;
+}
+
+function sb_default_single_template () {
+$single = <<<HERE
+<div class="sermon-browser-results">
+	<h2>[sermon_title] <span class="scripture">([passages_loop][passage] [/passages_loop])</span></h2>
+	[preacher_image]<span class="preacher">[preacher_link], [date]</span><br />
+	Part of the [series_link] series, preached at a [service_link] service<br />
+	Tags: [tags]<br />
+	[files_loop]	
+		[file]  
+	[/files_loop]
+	[urls_loop]
+		[url]  
+	[/urls_loop]
+	[embed_loop]
+		<br />[embed]<br />
+	[/embed_loop]
+	[preacher_description]
+	<table class="nearby-sermons">
+		<tr>
+			<th class="earlier">Earlier:</th>
+			<th>Same day:</th>
+			<th class="later">Later:</th>
+		</tr>
+		<tr>
+			<td class="earlier">[prev_sermon]</td>
+			<td>[sameday_sermon]</td>
+			<td class="later">[next_sermon]</td>
+		</tr>
+	</table>
+	[esvtext]
+   	[creditlink]
+</div>
+HERE;
+	return $single;
+}
+
+function sb_default_css () {
+$css = <<<HERE
+.sermon-browser h2 {
+	clear: both;
+}
+
+div.sermon-browser table.sermons {
+	width: 100%;
+	clear:both;
+}
+
+div.sermon-browser table.sermons td.sermon-title {
+	font-weight:bold;
+	font-size: 140%;
+	padding-top: 2em;
+}
+
+div.sermon-browser table.sermons td.sermon-passage {
+	font-weight:bold;
+	font-size: 110%;
+}
+
+div.sermon-browser table.sermons td.preacher {
+	border-bottom: 1px solid #444444;
+}
+
+div.sermon-browser table.sermons td.files img {
+	border: none;
+	margin-right: 24px;
+}
+
+table.sermonbrowser td.fieldname {
+	font-weight:bold;
+	padding-right: 10px;
+	vertical-align:bottom;
+}
+
+table.sermonbrowser td.field input, table.sermonbrowser td.field select{
+	width: 170px;
+}
+
+table.sermonbrowser td.field  #date, table.sermonbrowser td.field #enddate {
+	width: 150px;
+}
+
+table.sermonbrowser td {
+	white-space: nowrap;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+table.sermonbrowser td.rightcolumn {
+	padding-left: 10px;
+}
+
+div.sermon-browser div.floatright {
+	float: right
+}
+
+div.sermon-browser div.floatleft {
+	float: left
+}
+
+img.sermon-icon , img.site-icon {
+	border: none;
+}
+
+div.podcastall {
+	float:left;
+	border: 2px solid #FC9328;
+	background: #fff0c8 url(icons/podcast_background.png) repeat-x;
+	padding: 0.3em;
+}
+
+div.podcastall img.podcasticon, div.podcastcustom img.podcasticon {
+	float:left;
+	margin-right: 1em;
+	border: none;
+}
+
+div.podcastall span a{
+	color: #FC9328;
+	font-weight: bold;
+	font-size:125%;
+}
+
+div.podcastcustom {
+	float:right;
+	border: 2px solid #b83ee5;
+	background: #fce4ff url(icons/podcast_custom_background.png) repeat-x;
+	padding: 0.3em;
+}
+div.podcastcustom span a{
+	color: #b83ee5;
+	font-weight: bold;
+	font-size:125%;
+}
+
+div.sermon-browser-results span.preacher {
+	font-size: 120%;
+}
+
+div.sermon-browser-results span.scripture {
+	font-size: 80%;
+}
+
+div.sermon-browser-results img.preacher {
+	float:right;
+	margin-left: 1em;
+}
+
+div.sermon-browser-results div.preacher-description {
+	margin-top: 0.5em;
+}
+
+div.sermon-browser-results div.preacher-description span.about {
+	font-weight: bold;
+	font-size: 120%;
+}
+
+span.chapter-num {
+	font-weight: bold;
+	font-size: 150%;
+}
+
+span.verse-num {
+	vertical-align:super;
+	line-height: 1em;
+	font-size: 65%;
+}
+
+div.esv span.small-caps {
+	font-variant: small-caps;
+}
+
+
+div.sermon-browser #poweredbysermonbrowser {
+	text-align:center;
+}
+div.sermon-browser-results #poweredbysermonbrowser {
+	text-align:right;
+}
+
+table.nearby-sermons {
+	width: 100%;
+	clear:both;
+}
+
+table.nearby-sermons td, table.nearby-sermons th {
+	text-align: center;
+}
+
+table.nearby-sermons .earlier {
+	padding-right: 1em;
+	text-align: left;
+}
+
+table.nearby-sermons .later {
+	padding-left: 1em;
+	text-align:right;
+}
+
+table.nearby-sermons td {
+	width: 33%;
+	vertical-align: top;
+}
+
+ul.sermon-widget {
+	list-style-type:none;
+	margin:0;
+	padding: 0;
+}
+
+ul.sermon-widget li {
+	list-style-type:none;
+	margin:0;
+	padding: 0.25em 0;
+}
+
+ul.sermon-widget li span.sermon-title{
+	font-weight:bold;
+}
+HERE;
+   return $css;
+}
 ?>
