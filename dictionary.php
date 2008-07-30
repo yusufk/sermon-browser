@@ -56,7 +56,11 @@ $sdict = array(
 	'[prev_sermon]' => '<?php bb_print_prev_sermon_link($sermon["Sermon"]) ?>',
 	'[sameday_sermon]' => '<?php bb_print_sameday_sermon_link($sermon["Sermon"]) ?>',
 	'[tags]' => '<?php bb_print_tags($sermon["Tags"]) ?>',
-	'[esvtext]' => '<?php for ($i = 0; $i < count($sermon["Sermon"]->start); $i++): echo add_esv_text ($sermon["Sermon"]->start[$i], $sermon["Sermon"]->end[$i]); endfor ?>',
+	'[esvtext]' => '<?php for ($i = 0; $i < count($sermon["Sermon"]->start); $i++): echo add_bible_text ($sermon["Sermon"]->start[$i], $sermon["Sermon"]->end[$i], "esv"); endfor ?>',
+	'[kjvtext]' => '<?php for ($i = 0; $i < count($sermon["Sermon"]->start); $i++): echo add_bible_text ($sermon["Sermon"]->start[$i], $sermon["Sermon"]->end[$i], "kjv"); endfor ?>',
+	'[asvtext]' => '<?php for ($i = 0; $i < count($sermon["Sermon"]->start); $i++): echo add_bible_text ($sermon["Sermon"]->start[$i], $sermon["Sermon"]->end[$i], "asv"); endfor ?>',
+	'[ylttext]' => '<?php for ($i = 0; $i < count($sermon["Sermon"]->start); $i++): echo add_bible_text ($sermon["Sermon"]->start[$i], $sermon["Sermon"]->end[$i], "asv"); endfor ?>',
+	'[webtext]' => '<?php for ($i = 0; $i < count($sermon["Sermon"]->start); $i++): echo add_bible_text ($sermon["Sermon"]->start[$i], $sermon["Sermon"]->end[$i], "asv"); endfor ?>',
 	'[biblepassage]' => '<?php for ($i = 0; $i < count($sermon["Sermon"]->start); $i++): print_bible_passage ($sermon["Sermon"]->start[$i], $sermon["Sermon"]->end[$i]); endfor ?>',
 	'[creditlink]' => '<div id="poweredbysermonbrowser">Powered by <a href="http://www.4-14.org.uk/sermon-browser">Sermon Browser</a></div>',
 );

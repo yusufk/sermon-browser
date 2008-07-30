@@ -25,6 +25,6 @@
 			<td class="later"><?php bb_print_next_sermon_link($sermon["Sermon"]) ?></td>
 		</tr>
 	</table>
-	<?php for ($i = 0; $i < count($sermon["Sermon"]->start); $i++): echo add_esv_text ($sermon["Sermon"]->start[$i], $sermon["Sermon"]->end[$i]); endfor ?>
+	<?php for ($i = 0; $i < count($sermon["Sermon"]->start); $i++): echo add_bible_text ($sermon["Sermon"]->start[$i], $sermon["Sermon"]->end[$i], "kjv"); endfor ?>
    	<div id="poweredbysermonbrowser">Powered by <a href="http://www.4-14.org.uk/sermon-browser">Sermon Browser</a></div>
 </div>

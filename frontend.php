@@ -13,8 +13,49 @@ add_action('wp_head', 'bb_print_header');
 add_filter('the_content', 'bb_sermons_filter');
 add_action('widgets_init', 'widget_sermon_init');
 
-//Add ESV text
-function add_esv_text ($start, $end) {
+//Fix for AudioPlayer v2
+if (!function_exists('ap_insert_player_widgets') & function_exists('insert_audio_player')) {
+	function ap_insert_player_widgets($params) {
+		return insert_audio_player($params);
+	}
+}
+
+//Download external webpage
+function sb_download_page ($page_url) {
+	if (function_exists(curl_init)) {
+		$curl = curl_init();
+		curl_setopt ($curl, CURLOPT_URL, $page_url);
+		curl_setopt ($curl, CURLOPT_TIMEOUT, 2);
+		curl_setopt ($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt ($curl, CURLOPT_HTTPHEADER, array('Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7'));
+		$contents = curl_exec ($curl);
+		$content_type = curl_getinfo( $curl, CURLINFO_CONTENT_TYPE );
+		curl_close ($curl);
+		preg_match( '@([\w/+]+)(;\s+charset=(\S+))?@i', $content_type, $matches );
+		if (isset($matches[3])) {$charset = $matches[3];}
+			else {$charset = 'ISO-8859-1';} //Assume this charset for non-esv texts
+		$blog_charset = get_option('blog_charset');
+		if (strcasecmp($blog_charset, $charset)<>0) $contents = iconv ($charset, $blog_charset, $contents);
+	}
+	else
+		{
+		$handle = @fopen ($page_url, 'r');
+		if ($handle) {
+			stream_set_blocking($handle, TRUE );
+			stream_set_timeout($handle, 2);
+			$info = socket_get_status($handle);
+			while (!feof($handle) && !$info['timed_out']) {
+				$contents .= fread($handle, 8192);
+				$info = socket_get_status($handle);
+			}
+		fclose($handle);
+		}
+	}
+	return $contents;
+}
+
+//Tidy Bible reference
+function sb_tidy_reference ($start, $end) {
 	$r1 = $start['book'];
 	$r2 = $start['chapter'];
 	$r3 = $start['verse'];
@@ -31,19 +72,79 @@ function add_esv_text ($start, $end) {
 		else $reference = "$r1 $r2:$r3-$r5:$r6";
 	}	
 	else $reference =  "$r1 $r2:$r3 - $r4 $r5:$r6";
+	return $reference;
+}
+
+//Add ESV text
+function add_esv_text ($start, $end) {
 	// If you are experiencing errors, you should sign up for an ESV API key, and insert the name of your key in place of the letters IP in the URL below (.e.g. ...passageQuery?key=YOURAPIKEY&passage=...)
-	$handle = @fopen ('http://www.esvapi.org/v2/rest/passageQuery?key=IP&passage='.urlencode($reference).'&include-headings=false&include-footnotes=false', 'r');
-	if ($handle) {
-		stream_set_blocking($handle, TRUE );
-		stream_set_timeout($handle, 2);
-		$info = socket_get_status($handle);
-		while (!feof($handle) && !$info['timed_out']) {
-			$contents .= fread($handle, 8192);
-			$info = socket_get_status($handle);
-		}
-	fclose($handle);
+	$esv_url = 'http://www.esvapi.org/v2/rest/passageQuery?key=IP&passage='.urlencode(sb_tidy_reference ($start, $end)).'&include-headings=false&include-footnotes=false';
+	return sb_download_page ($esv_url);
+}
+
+function add_bible_text ($start, $end, $version) {
+	if ($version == "esv") {
+		return add_esv_text ($start, $end);
 	}
-	return $contents;
+	else {
+		global $books;
+		$r1 = array_search($start['book'], $books)+1;
+		$r2 = $start['chapter'];
+		$r3 = $start['verse'];
+		$r4 = array_search($end['book'], $books)+1;
+		$r5 = $end['chapter'];
+		$r6 = $end['verse'];
+		if (empty($start['book'])) {
+			return '';
+		}
+		$ls_url = 'http://api.seek-first.com/v1/BibleSearch.php?type=lookup&appid=seekfirst&startbooknum='.$r1.'&startchapter='.$r2.'&startverse='.$r3.'&endbooknum='.$r4.'&endchapter='.$r5.'&endverse='.$r6.'&version='.$version;
+		$content = sb_download_page ($ls_url);
+		if ($content != '') {
+			$r1++;
+			for (; $r4>=$r1; $r1++) {
+				$searchstring = '<BookNum>'.$r1.'</BookNum>';
+				$findpos = strpos($content, $searchstring);
+				$content=substr_replace($content, '</p><p><span class="chapter-num">'.$books[$r1-1].' 1:1</span>', $findpos, strlen($searchstring));
+				$searchstring = '<Verse>1</Verse>';
+				$findpos = strpos($content, $searchstring);
+				$content=substr_replace($content, '', $findpos, strlen($searchstring));
+			}
+			if ($r2 > 1) {$r2++;} else {$closepara = '</p><p>';}
+			for (; $r5>=$r2; $r2++) {
+				$searchstring = '<Chapter>'.$r2.'</Chapter>';
+				$findpos = strpos($content, $searchstring);
+				$content=substr_replace($content, $closepara.'<span class="chapter-num">'.$r2.':1</span>', $findpos, strlen($searchstring));
+				$searchstring = '<Verse>1</Verse>';
+				$findpos = strpos($content, $searchstring);
+				$content=substr_replace($content, '', $findpos, strlen($searchstring));
+			}
+			$patterns = array (
+				'/<!--(.)*?-->/',
+				'/<.?(Result|Results)>/',
+				'/<ShortBook>(.*)<\/ShortBook>/',
+				'/<Book>(.*)<\/Book>/',
+				'/<Copyright>(.*)<\/Copyright>/',
+				'/<VersionName>(.*)<\/VersionName>/',
+				'/<Title>(.*)<\/Title>/',
+				'/<TotalResults>(.*)<\/TotalResults>/',
+				'/<BookNum>(.*)<\/BookNum>/',
+				'/<Chapter>(.*)<\/Chapter>/',
+				'/<Verse>/',
+				'/<\/Verse>\n/',
+				'/<Text>/',
+				'/<\/Text>\n/',
+				'/\n/',
+			);
+			$replace = array (
+				'', '', '', '', '', '', '', '', '', '', '<span class="verse-num">', ' </span>', '', '', ' '
+			);
+			$content = preg_replace ($patterns, $replace, $content);
+			while (strpos($content, '  ')!==FALSE) {
+				$content = str_replace('  ', ' ', $content);
+			}
+			return '<div class="'.$version.'"><h2>'.sb_tidy_reference ($start, $end). '</h2><p>'.$content.' (<a href="http://biblepro.bibleocean.com/dox/default.aspx">'. strtoupper($version). '</a>)</p></div>';
+		}
+	}
 }
 
 //Print unstyled bible passage
@@ -142,7 +243,8 @@ function bb_build_url($arr, $clear = false) {
 	if (!$pageid) {
 		$pageid = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE post_content = '[sermons]' AND post_status = 'publish' AND post_date < NOW();");
 	}
-	$sef = substr(get_permalink($pageid),0,-1);
+	$sef = get_permalink($pageid);
+	if (substr($sef, -1) == '/') $sef=substr($sef, 0, -1);
 	$foo = array_merge((array) $_GET, (array) $_POST, $arr);
 	foreach ($foo as $k => $v) {
 		if (!$clear || in_array($k, array_keys($arr)) || !in_array($k, $wl)) {

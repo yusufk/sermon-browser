@@ -55,13 +55,15 @@ memory_limit = 16M
 
 You need to install and activate the 1pixelout audio player plugin. You can also customise the plugin so that its colours match your site.
 
-=Can I have different bible versions from the ESV?=
+=How do I change the Bible version from the ESV?=
 
-The ESV translation is the only one that provides an API which allows for this functionality. However, if you’re desperate to use other versions, you can manage it using other Wordpress plugins (albeit with reduced functionality). The eBibleicious plugin allows for NASB, MSG, KJV, NKJV, ESV, HCSB, and NCV (use it in ’snippet’ mode). However, there are three disadvantages. (1) To use it, you’ll need to register for an API key (although it is free). (2) It uses Javascript so search engines won’t see the Bible text, and nor will users with javascript turned off. (3) Most importantly, it only shows a maximum of four verses (the ESV shows up to 500 verses!).
+Five Bible versions are supported by Sermon Browser: the English Standard Version, American Standard Version, King James Version, Young's Literal Transaltion and the World English Bible. To change to one of these other versions, go to Options, and edit the single template. Replace [esvtext] with [asvtext], [kjvtext], [ylttext] or [webtext]. Thanks go to Crossway for providing access to the ESV, and Living Stones Ministries for the other versions.
 
-You can also use the RefTagger plugin, though this shows even few verses. Even worse (for our purposes) the bible passage only shows when you hover over a special link with your mouse. It does, however, provide an even longer list of translations. Please be aware that both RefTagger and eBibleicious will add bible text to bible references across your whole website, not just your sermons pages.
+If you're desperate to use other versions not currently supported, you can manage it using other Wordpress plugins (albeit with reduced functionality). However, if you're desperate to use other versions, you can manage it using other Wordpress plugins (albeit with reduced functionality). The eBibleicious plugin allows for NASB, MSG, KJV, NKJV, ESV, HCSB, and NCV (use it in 'snippet' mode). However, there are three disadvantages. (1) To use it, you'll need to register for an API key (although it is free). (2) It uses Javascript so search engines won't see the Bible text, and nor will users with javascript turned off. (3) Most importantly, it only shows a maximum of four verses (the ESV shows up to 500 verses!).
 
-To use either of these alternatives, just download, install and activate them as you would for any other plugin. Check their settings (make sure you enter get an API key if you’re using eBiblicious). You then need to make one change to your SermonBrowser options. In the Single Sermon form, look for [esvtext] and replace it with [biblepassage]. (By default it’s right at the end of the code.)
+You can also use the RefTagger plugin, though this shows even fewer verses. Even worse (for our purposes) the bible passage only shows when you hover over a special link with your mouse. It does, however, provide an even longer list of translations. Please be aware that both RefTagger and eBibleicious will add bible text to bible references across your whole website, not just your sermons pages.
+
+To use either of these alternatives, just download, install and activate them as you would for any other plugin. Check their settings (make sure you enter get an API key if you're using eBiblicious). You then need to make one change to your SermonBrowser options. In the *Single Sermon form*, look for **[esvtext]** and replace it with **[biblepassage]**. (By default it's right at the end of the code.)
 
 =When using the 1pixelout audio player, my pastor sounds like a chipmunk! What’s going on?=
 
@@ -111,9 +113,9 @@ Yes, definately, although you need to know a little HTML and/or CSS. SermonBrows
 
 The search form is set to roughly 500 pixels, which should be about right for most WordPress templates. To change it, look for a line in the CSS stylesheet that begins table.sermonbrowser td.field input, and change the width specified after it. To make the form narrower, reduce the width. To make it bigger, increase the width. You’ll also need to change the width of the date fields on the line below, which should be 20 pixels smaller.
 
-=Why is sometimes the ESV Bible text missing?=
+=Why is sometimes the Bible text missing?=
 
-This usually happens for one of three reasons: (1) If the ESV’s website is down. If you can’t see Genesis 1 then the problem is with the ESV website. It’s rarely down for long. (2) If you specify an invalid bible passage (e.g. Romans 22). If this is the case your sermon page will display ERROR: No results were found for your search. (3) If your webhost has disabled allow_url_fopen. This is a feature of PHP that some cheaper webhosts have switched off. There is an alternative that can be used - curl - but SermonBrowser doesn’t support that method at the moment. If your webhost has disabled allow_url_fopen, but does support curl, leave a message in the SermonBrowser comments. If there’s enough demand, it could perhaps be added.
+This usually happens for one of three reasons: (1) If the website providing the service is down. They're rarely down for long. (2) If you specify an invalid bible passage (e.g. Romans 22). If this is the case your sermon page will display <em>ERROR: No results were found for your search.</em> (3) If you never get the bible passages for any bible version, it's probably your webhost has disabled <strong>allow_url_fopen</strong> and cURL. Some cheaper webhosts have these essential features switched off. If they have, you won't be able to use this facility.
 
 =Why does my sermon page say I have exceeded my quota for ESV lookups?=
 
@@ -177,4 +179,8 @@ If you want to change the output of Sermon Browser, you'll need to edit the temp
 * [sameday_sermon] - Displays a link to other sermons preached on that day
 * [tags] - Displays the tags for that sermons
 * [esvtext] - Displays the full text of the ESV Bible for all passages linked to that sermon.
+* [asvtext] - Displays the full text of the ASV Bible for all passages linked to that sermon.
+* [kjvtext] - Displays the full text of the KJV Bible for all passages linked to that sermon.
+* [ylttext] - Displays the full text of the YLT Bible for all passages linked to that sermon.
+* [webtext] - Displays the full text of the WEB Bible for all passages linked to that sermon.
 * [biblepassage] - Displays the reference of the bible passages for that sermon. Useful for utilising other bible plugins (see FAQ).

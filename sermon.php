@@ -475,6 +475,169 @@ ul.sermon-widget li {
 }
 
 ul.sermon-widget li span.sermon-title{
+	font-weight:bold;.sermon-browser h2 {
+	clear: both;
+}
+
+div.sermon-browser table.sermons {
+	width: 100%;
+	clear:both;
+}
+
+div.sermon-browser table.sermons td.sermon-title {
+	font-weight:bold;
+	font-size: 140%;
+	padding-top: 2em;
+}
+
+div.sermon-browser table.sermons td.sermon-passage {
+	font-weight:bold;
+	font-size: 110%;
+}
+
+div.sermon-browser table.sermons td.preacher {
+	border-bottom: 1px solid #444444;
+}
+
+div.sermon-browser table.sermons td.files img {
+	border: none;
+	margin-right: 24px;
+}
+
+table.sermonbrowser td.fieldname {
+	font-weight:bold;
+	padding-right: 10px;
+	vertical-align:bottom;
+}
+
+table.sermonbrowser td.field input, table.sermonbrowser td.field select{
+	width: 170px;
+}
+
+table.sermonbrowser td.field  #date, table.sermonbrowser td.field #enddate {
+	width: 150px;
+}
+
+table.sermonbrowser td {
+	white-space: nowrap;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+table.sermonbrowser td.rightcolumn {
+	padding-left: 10px;
+}
+
+div.sermon-browser div.floatright {
+	float: right
+}
+
+div.sermon-browser div.floatleft {
+	float: left
+}
+
+img.sermon-icon , img.site-icon {
+	border: none;
+}
+
+div.podcastall {
+	float:left;
+	border: 2px solid #FC9328;
+	background: #fff0c8 url(icons/podcast_background.png) repeat-x;
+	padding: 0.3em;
+}
+
+div.podcastall img.podcasticon, div.podcastcustom img.podcasticon {
+	float:left;
+	margin-right: 1em;
+	border: none;
+}
+
+div.podcastall span a{
+	color: #FC9328;
+	font-weight: bold;
+	font-size:125%;
+}
+
+div.podcastcustom {
+	float:right;
+	border: 2px solid #b83ee5;
+	background: #fce4ff url(icons/podcast_custom_background.png) repeat-x;
+	padding: 0.3em;
+}
+div.podcastcustom span a{
+	color: #b83ee5;
+	font-weight: bold;
+	font-size:125%;
+}
+
+div.sermon-browser-results span.preacher {
+	font-size: 120%;
+}
+
+div.sermon-browser-results span.scripture {
+	font-size: 80%;
+}
+
+span.chapter-num {
+	font-weight: bold;
+	font-size: 150%;
+}
+
+span.verse-num {
+	vertical-align:super;
+	line-height: 1em;
+	font-size: 65%;
+}
+
+div.esv span.small-caps {
+	font-variant: small-caps;
+}
+
+
+div.sermon-browser #poweredbysermonbrowser {
+	text-align:center;
+}
+div.sermon-browser-results #poweredbysermonbrowser {
+	text-align:right;
+}
+
+table.nearby-sermons {
+	width: 100%;
+}
+
+table.nearby-sermons td, table.nearby-sermons th {
+	text-align: center;
+}
+
+table.nearby-sermons .earlier {
+	padding-right: 1em;
+	text-align: left;
+}
+
+table.nearby-sermons .later {
+	padding-left: 1em;
+	text-align:right;
+}
+
+table.nearby-sermons td {
+	width: 33%;
+	vertical-align: top;
+}
+
+ul.sermon-widget {
+	list-style-type:none;
+	margin:0;
+	padding: 0;
+}
+
+ul.sermon-widget li {
+	list-style-type:none;
+	margin:0;
+	padding: 0.25em 0;
+}
+
+ul.sermon-widget li span.sermon-title{
 	font-weight:bold;
 }
 HERE;
@@ -960,7 +1123,7 @@ function bb_help() {
 			<li><a href="#chmod">What does the error message "Error: The upload folder is not writeable. You need to CHMOD the folder to 666 or 777." mean?</a></li>
 			<li><a href="#uploaderrors">SermonBrowser spends a long time attempting to upload files, but the file is never uploaded. What's happening?</a></li>
 			<li><a href="#audioplayer">Why are my MP3 files are appearing as an icon, rather than as a player, as I've seen on other SermonBrowser sites?</a></li>
-			<li><a href="#differentversions">Can I have different bible versions from the ESV?</a></li>
+			<li><a href="#differentversions">How do I change the Bible version from the ESV?</a></li>
 			<li><a href="#chipmunk">When using the 1pixelout audio player, my pastor sounds like a chipmunk! What's going on?</a>
 			<li><a href="#sidebar">How do I get recent sermons to display in my sidebar?</a></li>
 			<li><a href="#diskspace">My host only allows me a certain amount of disk space, and I have so many sermons uploaded, I've run out of space! What can I do?</a></li>
@@ -973,7 +1136,7 @@ function bb_help() {
 			<li><a href="#pagenotfound">Why do I get a page not found error when I click on my podcast feed?</a></li>
 			<li><a href="#changedisplay">Can I change the way sermons are displayed?</a></li>
 			<li><a href="#changesearchform">The search form is too big/too small for my layout. How do I make it narrower/wider?</a></li>
-			<li><a href="#esvtextmissing">Why is sometimes the ESV Bible text missing?</a></li>
+			<li><a href="#bibletextmissing">Why is sometimes the Bible text missing?</a></li>
 			<li><a href="#exceededquota">Why does my sermon page say I have exceeded my quota for ESV lookups?</a></li>
 			<li><a href="#icons">How can I change the icons that Sermon Browser uses, or add new icons?</a></li>
 		</ul>
@@ -992,15 +1155,16 @@ function bb_help() {
 		memory_limit = 16M<br /></p>
 		<h4 id="audioplayer">Why are my MP3 files are appearing as an icon, rather than as a player, as I've seen on other SermonBrowser sites?</h4>
 		<p>You need to install and activate the <a href="http://www.1pixelout.net/code/audio-player-wordpress-plugin/">1pixelout audio player</a> plugin. You can also customise the plugin so that its colours match your site.</p>
-		<h4 id="differentversions">Can I have different bible versions from the ESV?</h4>
-		<p>The ESV translation is the only one that provides an API which allows for this functionality. However, if you're desperate to use other versions, you can manage it using other Wordpress plugins (albeit with reduced functionality). The <a href="http://wordpress.org/extend/plugins/ebibleicious/">eBibleicious</a> plugin allows for NASB, MSG, KJV, NKJV, ESV, HCSB, and NCV (use it in 'snippet' mode). However, there are three disadvantages. (1) To use it, you'll need to register for an API key (although it is free). (2) It uses Javascript so search engines won't see the Bible text, and nor will users with javascript turned off. (3) Most importantly, it only shows a maximum of four verses (the ESV shows up to 500 verses!).
-		<p>You can also use the <a href="http://www.logos.com/reftagger">RefTagger</a> plugin, though this shows even few verses. Even worse (for our purposes) the bible passage only shows when you hover over a special link with your mouse. It does, however, provide an even longer list of translations. Please be aware that both RefTagger and eBibleicious will add bible text to bible references across your whole website, not just your sermons pages.</p>
+		<h4 id="differentversions">How do I change the Bible version from the ESV?</h4>
+		<p>Five Bible versions are supported by Sermon Browser: the English Standard Version, American Standard Version, King James Version, Young's Literal Transaltion and the World English Bible. To change to one of these other versions, go to Options, and edit the single template. Replace [esvtext] with [asvtext], [kjvtext], [ylttext] or [webtext]. Thanks go to <a href="http://www.crosswaybibles.org/" target="_blank">Crossway</a> for providing access to the ESV, and <a href="http://www.lstones.com/" target="_blank">Living Stones Ministries</a> for the other versions.</p>
+		<p>If you're desperate to use other versions not currently supported, you can manage it using other Wordpress plugins (albeit with reduced functionality).  However, if you're desperate to use other versions, you can manage it using other Wordpress plugins (albeit with reduced functionality). The <a href="http://wordpress.org/extend/plugins/ebibleicious/">eBibleicious</a> plugin allows for NASB, MSG, KJV, NKJV, ESV, HCSB, and NCV (use it in 'snippet' mode). However, there are three disadvantages. (1) To use it, you'll need to register for an API key (although it is free). (2) It uses Javascript so search engines won't see the Bible text, and nor will users with javascript turned off. (3) Most importantly, it only shows a maximum of four verses (the ESV shows up to 500 verses!).
+		<p>You can also use the <a href="http://www.logos.com/reftagger">RefTagger</a> plugin, though this shows even fewer verses. Even worse (for our purposes) the bible passage only shows when you hover over a special link with your mouse. It does, however, provide an even longer list of translations. Please be aware that both RefTagger and eBibleicious will add bible text to bible references across your whole website, not just your sermons pages.</p>
 		<p>To use either of these alternatives, just download, install and activate them as you would for any other plugin. Check their settings (make sure you enter get an API key if you're using eBiblicious). You then need to make one change to your SermonBrowser options. In the <i>Single Sermon form</i>, look for <b>[esvtext]</b> and replace it with <b>[biblepassage]</b>. (By default it's right at the end of the code.)</p>
 		<h4 id="chipmunk">When using the 1pixelout audio player, my pastor sounds like a chipmunk! What's going on?</h4>
 		<p>This 'feature' is caused by a well-known bug in Adobe flash. In order for the files to play correctly, when they are saved, the sample rate needs to be set at a multiple of 11.025kHz (i.e. 11.025, 22.05 or 44.1).</p>
 		<h4 id="sidebar">How do I get recent sermons to display in my sidebar?</h4>
 		<p>If your WordPress theme supports widgets, just go to Design and choose <a href="widgets.php">Widgets</a>. There you easily can add the Sermons widget to your sidebar. If your theme doesn't support widgets, you'll need to edit your theme manually. Usually, you'll be editing a file called <b>sidebar.php</b>, but your theme may give it a different name. Add the following code:</p>
-			<p style="font-family:monospace">&lt;?php if (function_exists('display_sermons')) display_sermons(array('display_preacher' => 0, 'display_passage' => 1, 'preacher' => 0, 'service' => 0, 'series' => 0, 'limit' => 5)) ?></code>
+		<p style="font-family:monospace">&lt;?php if (function_exists('display_sermons')) display_sermons(array('display_preacher' => 0, 'display_passage' => 1, 'preacher' => 0, 'service' => 0, 'series' => 0, 'limit' => 5)) ?></code>
 		<p>Each of the numbers in that line can be changed. <b>display_preacher</b> and <b>display_passage</b> affect what is displayed (0 is off, 1 is on). <b>preacher</b>, <b>service</b> and <b>series</b> allow you to limit the output to a particular preacher, service or series. Simply change the number of the ID of the preacher/services/series you want to display. You can get the ID from the Preachers page, or the Series & Services page. 0 shows all preachers/services/series. <b>limit</b> is simply the maximum number of sermons you want displayed.</p>
 		<h4 id="diskspace">My host only allows me a certain amount of disk space, and I have so many sermons uploaded, I've run out of space! What can I do?</h4>
 		<p>You could, of course, change your host to someone a little more generous! I use <a href="http://www.vortechhosting.com/shared/windows.php">VortechHosting</a> for low traffic sites (5Gb of disk space for less than $10 a month), and <a href="https://www.liquidweb.com/cart/content/vps/">LiquidWeb VPS</a> for higher traffic sites (20Gb disk space for $60 a month). You should also make sure you encode your sermons at a medium to high compression. Usually, 22.05kHz, 48kbps mono is more than adequate (you could probably go down to 32kbps for even higher compression). 48kbps means every minute of recording takes up 360kb of disk space, so a thirty minute sermon will just over 10Mb. At this setting, 5Gb would be enough for over 450 sermons.</p>
@@ -1023,8 +1187,8 @@ function bb_help() {
 		<p>Yes, definately, although you need to know a little HTML and/or CSS. SermonBrowser has a powerful templating function, so you can exclude certain parts of the output (e.g. if you don't want the links to other sermons preached on the same day to be displayed). To edit the templates, go to SermonBrowser Options. Below is a reference for all the <a href="templatetags">template tags</a> you need. If you just want to change the way the output looks, without changing what is displayed, you need to edit the CSS stylesheet, also in SermonBrowser Options. (See one example, below).</p>
 		<h4 id="changesearchform">The search form is too big/too small for my layout. How do I make it narrower/wider?</h4>
 		<p>The search form is set to roughly 500 pixels, which should be about right for most WordPress templates. To change it, look for a line in the CSS stylesheet that begins <b>table.sermonbrowser td.field input</b>, and change the width specified after it. To make the form narrower, reduce the width. To make it bigger, increase the width. You'll also need to change the width of the date fields on the line below, which should be 20 pixels smaller.</p>
-		<h4 id="esvtextmissing">Why is sometimes the ESV Bible text missing?</h4>
-		<p>This usually happens for one of three reasons: (1) If the ESV's website is down. If you can't see <a href="http://www.esvapi.org/v2/rest/passageQuery?key=IP&passage=Gen+1&include-headings=false">Genesis 1</a> then the problem is with the ESV website. It's rarely down for long. (2) If you specify an invalid bible passage (e.g. Romans 22). If this is the case your sermon page will display <i>ERROR: No results were found for your search.</i> (3) If your webhost has disabled <b>allow_url_fopen</b>. This is a feature of PHP that some cheaper webhosts have switched off. There is an alternative that can be used - curl - but SermonBrowser doesn't support that method at the moment. If your webhost has disabled <b>allow_url_fopen</b>, but does support curl, leave a message in the <a href="http://www.4-14.org.uk/sermonbrowser#comments">SermonBrowser comments</a>. If there's enough demand, it could perhaps be added.</p>
+		<h4 id="bibletextmissing">Why is sometimes the Bible text missing?</h4>
+		<p>This usually happens for one of three reasons: (1) If the website providing the service is down. If you can't see Genesis 1 in the <a href="http://www.esvapi.org/v2/rest/passageQuery?key=IP&amp;passage=Gen+1&amp;include-headings=false">ESV</a> or <a href="http://api.seek-first.com/v1/BibleSearch.php?type=lookup&appid=seekfirst&startbooknum=1&startchapter=1&startverse=1&endbooknum=1&endchapter=1&endverse=30&version=KJV">the other versions</a>then the problem is with those websites. They're rarely down for long. (2) If you specify an invalid bible passage (e.g. Romans 22). If this is the case your sermon page will display <em>ERROR: No results were found for your search.</em> (3) If your webhost has disabled <strong>allow_url_fopen</strong> and cURL. Some cheaper webhosts have these essential features switched off. If they have, you won't be able to use this facility.</p>
 		<h4 id="exceededquota">Why does my sermon page say I have exceeded my quota for ESV lookups?</h4>
 		<p>The ESV website only allows 5,000 lookups per day from each IP address. That should be enough for most users of SermonBrowser. However, if you are using a shared host, there will be hundreds (perhaps thousands) of other websites on the same IP address as you. If any are also using the ESV API, they also get counted towards that total. If you are using less than 5,000 lookups per day (i.e. you are having less than 5,000 pageviews of your sermon pages), and you receive the error message you'll need to do two things in order to continue to display the text. (1) Sign up for an <a href="http://www.esvapi.org/signup">ESV API key</a>. (2) Edit frontend.php (one of the SermonBrowser files). Look for line 66, and replace <i>&hellip;passageQuery?key=<b>IP</b>&passage=&hellip;</i> with <i>&hellip;passageQuery?key=<b>YOURAPIKEY</b>&passage=&hellip;</i>.</p>
 		<p>If you <i>are</i> having more than 5,000 page views per day, then this won't help. Instead, leave a message in the <a href="http://www.4-14.org.uk/sermon-browser#comments">SermonBrowser comments</a> explaining your problem. SermonBrowser could probably be modified to provide a caching mechanism to reduce the likelihood of this error occurring, if there is demand.</p>
@@ -1071,6 +1235,10 @@ function bb_help() {
 			<li><b>[sameday_sermon]</b> - Displays a link to other sermons preached on that day</li>
 			<li><b>[tags]</b> - Displays the tags for that sermons</li>
 			<li><b>[esvtext]</b> - Displays the full text of the ESV Bible for all passages linked to that sermon.</li>
+			<li><b>[asvtext]</b> - Displays the full text of the ASV Bible for all passages linked to that sermon.</li>
+			<li><b>[kjvtext]</b> - Displays the full text of the KJV Bible for all passages linked to that sermon.</li>
+			<li><b>[ylttext]</b> - Displays the full text of the YLT Bible for all passages linked to that sermon.</li>
+			<li><b>[webtext]</b> - Displays the full text of the WEB Bible for all passages linked to that sermon.</li>
 			<li><b>[biblepassage]</b> - Displays the reference of the bible passages for that sermon. Useful for utilising other bible plugins (see <a href="#otherversions">FAQ</a>).</li>
 	</div>
 	</form>
@@ -1175,7 +1343,7 @@ function bb_manage_preachers() {
 		<p class="submit"><input type="submit" name="save" value="<?php _e('Save', $sermon_domain) ?> &raquo;" /></p> 
 		</form>
 	</div>
-<?
+<?php
 		return;
 	}
 	
@@ -2438,8 +2606,9 @@ function checkSermonUploadable() {
 		$fp = @fopen($sermonUploadDir.'sermontest.txt', 'w');
 		if ($fp) {
 			//Delete this test file
-			@unlink($sermonUploadDir.'sermontest.txt');
 			fclose($fp);
+			unset($fp);
+			@unlink($sermonUploadDir.'sermontest.txt');
 			return 'writeable';			
 		} else {
 			return 'unwriteable';
