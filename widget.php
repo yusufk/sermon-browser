@@ -27,6 +27,7 @@ function display_sermons($options = array()) {
 <?php
 }
 
+
 function widget_sermon_init() {
 	global $sermon_domain;
 	if ( !$options = get_option('widget_sermon') )
@@ -57,7 +58,7 @@ function widget_sermon_init() {
 }
 
 function widget_sermon( $args, $widget_args = 1 ) {
-	global $sermon_domain;
+	global $sermon_domain, $isMe;
 	extract( $args, EXTR_SKIP );
 	if ( is_numeric($widget_args) )
 		$widget_args = array( 'number' => $widget_args );
@@ -71,8 +72,10 @@ function widget_sermon( $args, $widget_args = 1 ) {
 		
 	extract($options[$number]);
 	
+?>
+<?php
 	echo $before_widget;
-
+	echo $before_title . $title . $after_title;
 	// Do stuff for this widget, drawing data from $options[$number]
 	$sermons = bb_get_sermons(array(
 			'preacher' => $preacher,
@@ -82,17 +85,18 @@ function widget_sermon( $args, $widget_args = 1 ) {
 		array(), 1, $limit		
 	);
 ?>
+	<ul class="sermon-widget">
 	<?php foreach ((array) $sermons as $sermon): ?>
-		<span class="sermon-title"><a href="<?php bb_print_sermon_link($sermon) ?>"><?php echo stripslashes($sermon->title) ?></a></span><br />
-		<?php if ($preacherz): ?><span class="preacher"><?php _e('Preached by ', $sermon_domain) ?><a href="<?php bb_print_preacher_link($sermon) ?>"><?php echo stripslashes($sermon->preacher) ?></a></span><br /><?php endif ?>
-		<?php if ($book): ?><span class="sermon-passage"><?php $foo = unserialize($sermon->start); $bar = unserialize($sermon->end); echo bb_get_books($foo[0], $bar[0]) ?></span><br /><?php endif ?>
-		<br />		
+		<li><span class="sermon-title"><a href="<?php bb_print_sermon_link($sermon) ?>"><?php echo stripslashes($sermon->title) ?></a></span>
+			<?php if ($book): ?><span class="sermon-passage">(<?php $foo = unserialize($sermon->start); $bar = unserialize($sermon->end); echo bb_get_books($foo[0], $bar[0]) ?>)</span><?php endif ?>
+			<?php if ($preacherz): ?><span class="sermon-preacher"> <?php _e('by', $sermon_domain) ?> <a href="<?php bb_print_preacher_link($sermon) ?>"><?php echo stripslashes($sermon->preacher) ?></a></span><?php endif ?>
+			<?php if ($date): ?><span class="sermon-date"> <?php _e(' on ', $sermon_domain); echo date("j F Y", strtotime($sermon->date)); ?></span>.<?php endif ?>
+		</li>		
 	<?php endforeach ?>
+	</ul>
+<?php echo $after_widget; ?>
 <?php
-	
-	echo $after_widget;
 }
-
 function widget_sermon_control( $widget_args = 1 ) {
 	global $wpdb, $sermon_domain, $books;
 	global $wp_registered_widgets;
@@ -144,7 +148,9 @@ function widget_sermon_control( $widget_args = 1 ) {
 			$service = (int) $widget_sermon_instance['service'];
 			$series = (int) $widget_sermon_instance['series'];
 			$book = (int) $widget_sermon_instance['book'];
-			$options[$widget_number] = array( 'limit' => $limit, 'preacherz' => $preacherz, 'book' => $book, 'preacher' => $preacher, 'service' => $service, 'series' => $series );  // Even simple widgets should store stuff in array, rather than in scalar
+			$title = strip_tags(stripslashes($widget_sermon_instance['title']));
+			$date = (int) $widget_sermon_instance['date'];
+			$options[$widget_number] = array( 'limit' => $limit, 'preacherz' => $preacherz, 'book' => $book, 'preacher' => $preacher, 'service' => $service, 'series' => $series, 'title' => $title, 'date' => $date);  // Even simple widgets should store stuff in array, rather than in scalar
 		}
 
 		update_option('widget_sermon', $options);
@@ -162,6 +168,8 @@ function widget_sermon_control( $widget_args = 1 ) {
 		$preacher = '';
 		$service = '';
 		$series = '';
+		$title ='';
+		$date = '';
 	} else {
 		$limit = attribute_escape($options[$number]['limit']);
 		$preacher = attribute_escape($options[$number]['preacher']);
@@ -169,11 +177,14 @@ function widget_sermon_control( $widget_args = 1 ) {
 		$series = attribute_escape($options[$number]['series']);
 		$preacherz = (int) $options[$number]['preacherz'];
 		$book = (int) $options[$number]['book'];
+		$title = attribute_escape($options[$number]['title']);
+		$date = (int) $options[$number]['date'];
 	}
 
 	// The form has inputs with names like widget-many[$number][something] so that all data for that instance of
 	// the widget are stored in one $_POST variable: $_POST['widget-many'][$number]
 ?>
+		<p><?php _e('Title:'); ?> <input class="widefat" id="widget-sermon-title" name="widget-sermon[<?php echo $number; ?>][title]" type="text" value="<?php echo $title; ?>" /></p>
 		<p>
 			<?php _e('Number of sermons: ', $sermon_domain) ?><input class="widefat" id="widget-sermon-limit-<?php echo $number; ?>" name="widget-sermon[<?php echo $number; ?>][limit]" type="text" value="<?php echo $limit; ?>" /><br />
 			
@@ -181,6 +192,7 @@ function widget_sermon_control( $widget_args = 1 ) {
 			
 			<input type="checkbox" id="widget-sermon-book-<?php echo $number ?>" name="widget-sermon[<?php echo $number ?>][book]" <?php echo $book ? 'checked=checked' : '' ?> value="1"> <?php _e('Display bible passage', $sermon_domain) ?><br />
 			
+			<input type="checkbox" id="widget-sermon-date-<?php echo $number ?>" name="widget-sermon[<?php echo $number ?>][date]" <?php echo $date ? 'checked=checked' : '' ?> value="1"> <?php _e('Display the date', $sermon_domain) ?><br />
 			<?php _e('Preacher: ', $sermon_domain) ?><br />
 			<select name="widget-sermon[<?php echo $number; ?>][preacher]" id="widget-sermon-preacher-<?php echo $number; ?>">
 				<option value="0" <?php echo $preacher ? '' : 'selected="selected"' ?>><?php _e('[All]', $sermon_domain) ?></option>

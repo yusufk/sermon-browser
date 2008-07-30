@@ -149,6 +149,8 @@ If you want to change the output of Sermon Browser, you'll need to edit the temp
 * [next_page] - Displays the link to the next page of search results (if needed)
 * [podcast] - Link to the podcast of all sermons
 * [podcast_for_search] - Link to the podcast of sermons that match the current search
+* [itunes_podcast] - iTunes (itpc://) link to the podcast of all sermons
+* [itunes_podcast_for_search] - iTunes (itpc://) link to the podcast of sermons that match the current search
 * [podcasticon] - Displays the icon used for the main podcast
 * [podcasticon_for_search] - Displays the icon used for the custom podcast
 

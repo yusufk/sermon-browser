@@ -2,6 +2,7 @@
 
 $mdict = array(
 	'[filters_form]' => '<?php bb_print_filters() ?>',
+	'[tag_cloud]' => '<?php bb_print_tag_clouds() ?>',
 	'[sermons_count]' => '<?php bb_print_sermons_count() ?>',
 	'[sermons_loop]' => '<?php foreach ($sermons as $sermon): ?><?php $stuff = bb_get_stuff($sermon) ?>',
 	'[/sermons_loop]' => '<?php endforeach ?>',
@@ -22,8 +23,10 @@ $mdict = array(
 	'[embed]' => '<?php bb_print_code($code) ?>',
 	'[next_page]' => '<?php bb_print_next_page_link() ?>',
 	'[previous_page]' => '<?php bb_print_prev_page_link() ?>',	
-	'[podcast_for_search]' => '<?php bb_print_podcast_url() ?>',
+	'[podcast_for_search]' => '<?php echo bb_podcast_url() ?>',
 	'[podcast]' => '<?php echo get_option("sb_podcast") ?>',
+	'[itunes_podcast]' => '<?php echo str_replace("http://", "itpc://", get_option("sb_podcast")) ?>',
+	'[itunes_podcast_for_search]' => '<?php echo str_replace("http://", "itpc://", bb_podcast_url()) ?>',
 	'[podcasticon]' => '<img alt="Subscribe to full podcast" title="Subscribe to full podcast" class="podcasticon" src="<?php echo get_bloginfo("wpurl") ?>/wp-content/plugins/sermonbrowser/icons/podcast.png"/>',
 	'[podcasticon_for_search]' => '<img alt="Subscribe to custom podcast" title="Subscribe to custom podcast" class="podcasticon" src="<?php echo get_bloginfo("wpurl") ?>/wp-content/plugins/sermonbrowser/icons/podcast_custom.png"/>',
 	'[creditlink]' => '<div id="poweredbysermonbrowser">Powered by <a href="http://www.4-14.org.uk/sermon-browser">Sermon Browser</a></div>',

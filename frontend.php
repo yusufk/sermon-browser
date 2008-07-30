@@ -7,7 +7,6 @@ require_once('widget.php');
 
 // word list for URL building purpose
 $wl = array('preacher', 'title', 'date', 'enddate', 'series', 'service', 'sortby', 'dir', 'page', 'sermon_id', 'book', 'stag', 'podcast');
-
 // hooks & filters
 add_action('template_redirect', 'bb_hijack');
 add_action('wp_head', 'bb_print_header');
@@ -99,8 +98,12 @@ function bb_hijack() {
 // main entry
 function bb_sermons_filter($content) {
 	global $wpdb, $clr;
-	global $wordpressRealPath;
-	if (!strstr($content, '[sermons]')) return $content;
+	global $wordpressRealPath, $isMe;
+	if (!strstr($content, '[sermons]')) { 
+	    $isMe = false; return $content;
+    } else {
+        $isMe = true;
+    }
 	ob_start();
 	
 	if ($_GET['sermon_id']) {
@@ -135,9 +138,11 @@ function bb_sermons_filter($content) {
 }
 
 function bb_build_url($arr, $clear = false) {
-	global $wl, $post;
-	$id = ($post->ID) ? $post->ID : $post;
-	$sef = substr(get_permalink($id),0,-1);
+	global $wl, $post, $pageid, $wpdb;
+	if (!$pageid) {
+		$pageid = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE post_content = '[sermons]' AND post_status = 'publish' AND post_date < NOW();");
+	}
+	$sef = substr(get_permalink($pageid),0,-1);
 	$foo = array_merge((array) $_GET, (array) $_POST, $arr);
 	foreach ($foo as $k => $v) {
 		if (!$clear || in_array($k, array_keys($arr)) || !in_array($k, $wl)) {
@@ -149,7 +154,7 @@ function bb_build_url($arr, $clear = false) {
 }
 
 function bb_print_header() {
-	global $sermon_domain;
+	global $sermon_domain, $sermompage;
 	$url = get_bloginfo('wpurl');
 ?>
 	<link rel="alternate" type="application/rss+xml" title="<?php _e('Sermon podcast', $sermon_domain) ?>" href="<?php echo get_option('sb_podcast') ?>" />
@@ -186,8 +191,8 @@ function bb_get_books($start, $end) {
 	return "$r1 $r2:$r3 - $r4 $r5:$r6";
 }
 
-function bb_print_podcast_url() {
-	echo str_replace(' ', '%20', bb_build_url(array('podcast' => 1)));
+function bb_podcast_url() {
+	return str_replace(' ', '%20', bb_build_url(array('podcast' => 1)));
 }
 
 function bb_print_first_mp3($sermon) {
@@ -413,58 +418,61 @@ function bb_page_count($limit = 15) {
 }
 
 function bb_count_sermons($filter) {
-	global $wpdb;
-	$default_filter = array(
-		'title' => '',
-		'preacher' => 0,
-		'date' => '',
-		'enddate' => '',
-		'series' => 0,
-		'service' => 0,
-		'book' => '',
-		'tag' => '',
-	);	
-	$filter = array_merge($default_filter, $filter);	
-	if ($filter['title'] != '') {
-		$cond = "AND (m.title LIKE '%" . mysql_real_escape_string($filter['title']) . "%' OR m.description LIKE '%" . mysql_real_escape_string($filter['title']) . "%' ";
+	global $wpdb, $sermoncount;
+	if (!$sermoncount) {
+		$default_filter = array(
+			'title' => '',
+			'preacher' => 0,
+			'date' => '',
+			'enddate' => '',
+			'series' => 0,
+			'service' => 0,
+			'book' => '',
+			'tag' => '',
+		);	
+		$filter = array_merge($default_filter, $filter);	
+		if ($filter['title'] != '') {
+			$cond = "AND (m.title LIKE '%" . mysql_real_escape_string($filter['title']) . "%' OR m.description LIKE '%" . mysql_real_escape_string($filter['title']). "%' OR t.name LIKE '%" . mysql_real_escape_string($filter['title']) . "%') ";
+		}
+		if ($filter['preacher'] != 0) {
+			$cond .= 'AND m.preacher_id = ' . (int) $filter['preacher'] . ' ';
+		}
+		if ($filter['date'] != '') {
+			$cond .= 'AND m.date >= "' . mysql_real_escape_string($filter['date']) . '" ';
+		}
+		if ($filter['enddate'] != '') {
+			$cond .= 'AND m.date <= "' . mysql_real_escape_string($filter['enddate']) . '" ';
+		}
+		if ($filter['series'] != 0) {
+			$cond .= 'AND m.series_id = ' . (int) $filter['series'] . ' ';
+		}
+		if ($filter['service'] != 0) {
+			$cond .= 'AND m.service_id = ' . (int) $filter['service'] . ' ';
+		}		
+		if ($filter['book'] != '') {
+			$cond .= 'AND bs.book_name = "' . mysql_real_escape_string($filter['book']) . '" ';
+		} else {
+			$bs = "AND bs.order = 0 AND bs.type= 'start' ";
+		}
+		if ($filter['tag'] != '') {
+			$cond .= 'OR t.name LIKE "%' . ($filter['title']) . '%" ';
+		}
+		$query = "SELECT COUNT(*) 
+			FROM {$wpdb->prefix}sb_sermons as m 
+			LEFT JOIN {$wpdb->prefix}sb_preachers as p ON m.preacher_id = p.id 
+			LEFT JOIN {$wpdb->prefix}sb_services as s ON m.service_id = s.id 
+			LEFT JOIN {$wpdb->prefix}sb_series as ss ON m.series_id = ss.id 
+			LEFT JOIN {$wpdb->prefix}sb_books_sermons as bs ON bs.sermon_id = m.id $bs 
+			LEFT JOIN {$wpdb->prefix}sb_books as b ON bs.book_name = b.name 
+			LEFT JOIN {$wpdb->prefix}sb_sermons_tags as st ON st.sermon_id = m.id 
+			LEFT JOIN {$wpdb->prefix}sb_tags as t ON t.id = st.tag_id 
+			WHERE 1 = 1 $cond ";
+		$sermoncount = $wpdb->get_var($query);
 	}
-	if ($filter['preacher'] != 0) {
-		$cond .= 'AND m.preacher_id = ' . (int) $filter['preacher'] . ' ';
-	}
-	if ($filter['date'] != '') {
-		$cond .= 'AND m.date >= "' . mysql_real_escape_string($filter['date']) . '" ';
-	}
-	if ($filter['enddate'] != '') {
-		$cond .= 'AND m.date <= "' . mysql_real_escape_string($filter['date']) . '" ';
-	}
-	if ($filter['series'] != 0) {
-		$cond .= 'AND m.series_id = ' . (int) $filter['series'] . ' ';
-	}
-	if ($filter['service'] != 0) {
-		$cond .= 'AND m.service_id = ' . (int) $filter['service'] . ' ';
-	}		
-	if ($filter['book'] != '') {
-		$cond .= 'AND bs.book_name = "' . mysql_real_escape_string($filter['book']) . '" ';
-	} else {
-		$bs = "AND bs.order = 0 AND bs.type= 'start' ";
-	}
-	if ($filter['tag'] != '') {
-		$cond .= 'AND t.name LIKE "%' . mysql_real_escape_string($filter['tag']) . '%" ';
-	}
-	$query = "SELECT DISTINCT m.id 
-		FROM {$wpdb->prefix}sb_sermons as m 
-		LEFT JOIN {$wpdb->prefix}sb_preachers as p ON m.preacher_id = p.id 
-		LEFT JOIN  {$wpdb->prefix}sb_services as s ON m.service_id = s.id 
-		LEFT JOIN {$wpdb->prefix}sb_series as ss ON m.series_id = ss.id 
-		LEFT JOIN {$wpdb->prefix}sb_books_sermons as bs ON bs.sermon_id = m.id $bs 
-		LEFT JOIN {$wpdb->prefix}sb_books as b ON bs.book_name = b.name 
-		LEFT JOIN {$wpdb->prefix}sb_sermons_tags as st ON st.sermon_id = m.id 
-		LEFT JOIN {$wpdb->prefix}sb_tags as t ON t.id = st.tag_id 
-		WHERE 1 = 1 $cond";
-	return count($wpdb->get_results($query));
+	return $sermoncount;
 }
 
-function bb_get_sermons($filter, $order, $page = 1, $limit = 10) {
+function bb_get_sermons($filter, $order, $page = 1, $limit = 15) {
 	global $wpdb;
 	$default_filter = array(
 		'title' => '',
@@ -486,7 +494,7 @@ function bb_get_sermons($filter, $order, $page = 1, $limit = 10) {
 	
 	$page = (int) $page;
 	if ($filter['title'] != '') {
-		$cond = "AND (m.title LIKE '%" . mysql_real_escape_string($filter['title']) . "%' OR m.description LIKE '%" . mysql_real_escape_string($filter['title']) . "%') ";
+		$cond = "AND (m.title LIKE '%" . mysql_real_escape_string($filter['title']) . "%' OR m.description LIKE '%" . mysql_real_escape_string($filter['title']). "%' OR t.name LIKE '%" . mysql_real_escape_string($filter['title']) . "%') ";
 	}
 	if ($filter['preacher'] != 0) {
 		$cond .= 'AND m.preacher_id = ' . (int) $filter['preacher'] . ' ';
@@ -495,7 +503,7 @@ function bb_get_sermons($filter, $order, $page = 1, $limit = 10) {
 		$cond .= 'AND m.date >= "' . mysql_real_escape_string($filter['date']) . '" ';
 	}
 	if ($filter['enddate'] != '') {
-		$cond .= 'AND m.date <= "' . mysql_real_escape_string($filter['date']) . '" ';
+		$cond .= 'AND m.date <= "' . mysql_real_escape_string($filter['enddate']) . '" ';
 	}
 	if ($filter['series'] != 0) {
 		$cond .= 'AND m.series_id = ' . (int) $filter['series'] . ' ';
@@ -509,7 +517,7 @@ function bb_get_sermons($filter, $order, $page = 1, $limit = 10) {
 		$bs = "AND bs.order = 0 AND bs.type= 'start' ";
 	}
 	if ($filter['tag'] != '') {
-		$cond .= 'AND t.name LIKE "%' . mysql_real_escape_string($filter['tag']) . '%" ';
+		$cond .= 'OR t.name LIKE "%' . mysql_real_escape_string($filter['title']) . '%" ';
 	}
 	$offset = $limit * ($page - 1);
 	if ($order['by'] == 'm.date' ) {
@@ -522,13 +530,14 @@ function bb_get_sermons($filter, $order, $page = 1, $limit = 10) {
 	$query = "SELECT DISTINCT m.id, m.title, m.description, m.date, m.time, m.start, m.end, p.id as pid, p.name as preacher, p.description as preacher_description, p.image, s.id as sid, s.name as service, ss.id as ssid, ss.name as series 
 		FROM {$wpdb->prefix}sb_sermons as m 
 		LEFT JOIN {$wpdb->prefix}sb_preachers as p ON m.preacher_id = p.id 
-		LEFT JOIN  {$wpdb->prefix}sb_services as s ON m.service_id = s.id 
+		LEFT JOIN {$wpdb->prefix}sb_services as s ON m.service_id = s.id 
 		LEFT JOIN {$wpdb->prefix}sb_series as ss ON m.series_id = ss.id 
 		LEFT JOIN {$wpdb->prefix}sb_books_sermons as bs ON bs.sermon_id = m.id $bs 
 		LEFT JOIN {$wpdb->prefix}sb_books as b ON bs.book_name = b.name 
 		LEFT JOIN {$wpdb->prefix}sb_sermons_tags as st ON st.sermon_id = m.id 
 		LEFT JOIN {$wpdb->prefix}sb_tags as t ON t.id = st.tag_id 
 		WHERE 1 = 1 $cond ORDER BY ". $order['by'] . " " . $order['dir'] . " LIMIT " . $offset . ", " . $limit;
+		
 	return $wpdb->get_results($query);
 }
 
@@ -612,7 +621,7 @@ function bb_print_filters() {
 					<td class="fieldname"><?php _e('Start date', $sermon_domain) ?></td>
 					<td class="field"><input type="text" name="date" id="date" value="<?php echo mysql_real_escape_string($_REQUEST['date']) ?>" /></td>
 					<td class="fieldname rightcolumn"><?php _e('End date', $sermon_domain) ?></td>
-					<td class="field"><input type="text" name="date" id="enddate" value="<?php echo mysql_real_escape_string($_REQUEST['enddate']) ?>" /></td>
+					<td class="field"><input type="text" name="enddate" id="enddate" value="<?php echo mysql_real_escape_string($_REQUEST['enddate']) ?>" /></td>
 				</tr>
 				<tr>
 					<td class="fieldname"><?php _e('Keywords', $sermon_domain) ?></td>
