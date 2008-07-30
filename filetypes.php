@@ -9,8 +9,8 @@
 
 $filetypes = array(
 	'mp3' => array(
-		'name' => 'MP3',
-		'icon' => 'mp3.png',
+		'name' => 'mp3',
+		'icon' => 'audio.png',
 	),		
 	'doc' => array(
 		'name' => 'Microsoft Word',
@@ -20,7 +20,15 @@ $filetypes = array(
 		'name' => 'Microsoft Word',
 		'icon' => 'doc.png',
 	),		
+	'rtf' => array(
+		'name' => 'Rich Text Format',
+		'icon' => 'doc.png',
+	),		
 	'ppt' => array(
+		'name' => 'Powerpoint',
+		'icon' => 'ppt.png',
+	),		
+	'pptx' => array(
 		'name' => 'Powerpoint',
 		'icon' => 'ppt.png',
 	),		
@@ -28,8 +36,62 @@ $filetypes = array(
 		'name' => 'Adobe Acrobat',
 		'icon' => 'pdf.png',
 	),		
+	'iso' => array(
+		'name' => 'Disk image',
+		'icon' => 'iso.png',
+	),		
+	'wma' => array(
+		'name' => 'Windows Media Audio',
+		'icon' => 'audio.png',
+	),		
+	'txt' => array(
+		'name' => 'Text',
+		'icon' => 'txt.png',
+	),		
+	'wma' => array(
+		'name' => 'Windows Media Audio',
+		'icon' => 'audio.png',
+	),		
+	'wmv' => array(
+		'name' => 'Windows Media Video',
+		'icon' => 'video.png',
+	),		
+	'mov' => array(
+		'name' => 'Quicktime Video',
+		'icon' => 'video.png',
+	),		
+	'divx' => array(
+		'name' => 'DivX Video',
+		'icon' => 'video.png',
+	),		
+	'avi' => array(
+		'name' => 'Video',
+		'icon' => 'video.png',
+	),		
+	'xls' => array(
+		'name' => 'Microsoft Excel',
+		'icon' => 'xls.png',
+	),		
+	'xlsx' => array(
+		'name' => 'Microsoft Excel',
+		'icon' => 'xls.png',
+	),		
+	'zip' => array(
+		'name' => 'Zip file',
+		'icon' => 'zip.png',
+	),		
+	'gz' => array(
+		'name' => 'Gzip file',
+		'icon' => 'zip.png',
+	),		
 );
 
-$default_icon = 'file.png';
+$siteicons = array(
+	'http://google.com' => 'url.png',
+);
+
+$default_file_icon = 'unknown.png';
+
+$default_site_icon = 'url.png';
 
 ?>
