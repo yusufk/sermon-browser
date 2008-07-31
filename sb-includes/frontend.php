@@ -1,4 +1,3 @@
-<<<<<<< .mine
 <?php 
 
 // Required files
@@ -1839,4 +1838,3 @@ function sb_print_filters() {
 }
 
 ?>
->>>>>>> .r57062
