@@ -28,13 +28,13 @@ function sb_display_sermons($options = array()) {
 		array(), 1, $limit
 	);
 	if ($url_only == 1)
-		sb_print_sermon_link($sermons[0]);
+		sb_print_sermon_link($sermons[0], true, false);
 	else {
 		echo "<ul class=\"sermon-widget\">\r";
 		foreach ((array) $sermons as $sermon) {
 			echo "\t<li>";
 			echo "<span class=\"sermon-title\"><a href=\"";
-			sb_print_sermon_link($sermon);
+			sb_print_sermon_link($sermon, true, false);
 			echo "\">".stripslashes($sermon->title)."</a></span>";
 			if ($display_passage) {
 				$foo = unserialize($sermon->start);
@@ -43,7 +43,7 @@ function sb_display_sermons($options = array()) {
 			}
 			if ($display_preacher) {
 				echo "<span class=\"sermon-preacher\">".__('by', $sermon_domain)." <a href=\"";
-				sb_print_preacher_link($sermon);
+				sb_print_preacher_link($sermon, false);
 				echo "\">".stripslashes($sermon->preacher)."</a></span>";
 			}
 			if ($display_date)
@@ -511,7 +511,7 @@ function sb_build_url($arr, $clear = false, $relative_link = false) {
 		}
 	}
 	if (isset($bar)) {
-		if ($relative_link)
+		if ($relative_link and get_option('permalink_structure'))  // relative links don't work if pretty permalinks are not being used
 			return sb_query_char().implode('&amp;', $bar);
 		else
 			return sb_display_url().sb_query_char().implode('&amp;', $bar);
@@ -568,11 +568,11 @@ function sb_podcast_url() {
 }
 
 // Prints sermon search URL
-function sb_print_sermon_link($sermon, $echo = true) {
+function sb_print_sermon_link($sermon, $echo = true, $relative_link = true) {
 	if ($echo)
-		echo sb_build_url(array('sermon_id' => $sermon->id), true, true);
+		echo sb_build_url(array('sermon_id' => $sermon->id), true, $relative_link);
 	else
-		return sb_build_url(array('sermon_id' => $sermon->id), true, true);
+		return sb_build_url(array('sermon_id' => $sermon->id), true, $relative_link);
 }
 
 // Prints preacher search URL
@@ -669,7 +669,7 @@ function sb_print_url($url) {
 	require (SB_INCLUDES_DIR.'/filetypes.php');
 	$pathinfo = pathinfo($url);
 	$ext = $pathinfo['extension'];
-	if (substr($url,0,7) == "http://")
+	if ((substr($url,0,7) == "http://") or (substr($url,0,8) == 'https://'))
 		$url=sb_display_url().sb_query_char(FALSE).'show&url='.rawurlencode($url);
 	else
 		if (strtolower($ext) == 'mp3')
@@ -707,7 +707,7 @@ function sb_print_url_link($url) {
 	echo '<div class="sermon_file">';
 	sb_print_url ($url);
 	if (substr($url, -4) == ".mp3") {
-		if (substr($url,0,7) == "http://") {
+		if ((substr($url,0,7) == "http://") or (substr($url,0,8) == 'https://')) {
 			$param="url"; }
 		else {
 			$param="file_name"; }
@@ -1109,7 +1109,7 @@ function sb_first_mp3($sermon, $stats= TRUE) {
 	$stuff = array_merge((array)$stuff['Files'], (array)$stuff['URLs']);
 	foreach ((array) $stuff as $file) {
 		if (strtolower(substr($file, strrpos($file, '.') + 1)) == 'mp3') {
-			if (substr($file,0,7) == "http://") {
+			if ((substr($url,0,7) == "http://") or (substr($url,0,8) == 'https://')) {
 				if ($stats)
 					$file=sb_display_url().sb_query_char().'show&amp;url='.rawurlencode($file);
 			} else {

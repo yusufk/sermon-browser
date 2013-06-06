@@ -44,7 +44,7 @@ function sb_options() {
 		sb_update_option('filter_type', 'oneclick');
 		sb_update_option('filter_hide', 'hide');
 		sb_update_option('hide_no_attachments', false);
-		sb_update_option('mp3_shortcode', '[audio:%SERMONURL%]');
+		sb_update_option('mp3_shortcode', '[audio mp3="%SERMONURL%"]');
 		   if (!is_dir(SB_ABSPATH.$dir))
 			if (sb_mkdir(SB_ABSPATH.$dir))
 				@chmod(SB_ABSPATH.$dir, 0777);
@@ -192,7 +192,7 @@ function sb_options() {
 				<td><?php if (sb_display_url()=='') { echo htmlspecialchars(site_url()); } else { echo htmlspecialchars(sb_display_url()); } echo sb_query_char(); ?>podcast</td>
 			</tr>
 			<tr>
-				<td align="right" style="vertical-align:middle"><?php _e('MP3 shortcode', $sermon_domain) ?>: </td>
+				<td align="right" style="vertical-align:middle"><?php _e('MP3 shortcode', $sermon_domain) ?>: <br/><?php _e('Default: ', $sermon_domain) ?>[audio mp3=&quot;%SERMONURL%&quot;]</td>
 				<td><input type="text" name="mp3_shortcode" value="<?php echo htmlspecialchars(sb_get_option('mp3_shortcode')) ?>" style="width:100%" /></td>
 			</tr>
 			<tr>
@@ -751,7 +751,7 @@ function sb_manage_everything() {
 								<?php if (count($v['data']) < 2) { ?>
 									| <a href="javascript:alert('<?php printf(__('You cannot delete this %1$s as you must have at least one %1$s in the database', $sermon_domain), $k); ?>')"><?php _e('Delete', $sermon_domain) ?></a>
 								<?php } elseif ($item->sermon_count == 0) { ?>
-									| <a href="javascript:alert('<?php printf(__('Are you sure you want to delete %s?', $sermon_domain), $item->name); ?>')"><?php _e('Delete', $sermon_domain) ?></a>
+									| <a href="javascript:if(confirm('<?php printf(__('Are you sure you want to delete %s?', $sermon_domain), $item->name); ?>')){delete<?php echo $k ?>(<?php echo $item->id ?>)}"><?php _e('Delete', $sermon_domain) ?></a>
 								<?php } else { ?>
 									| <a href="javascript:alert('<?php switch ($k) {
 										case "Services":
@@ -1578,7 +1578,7 @@ function sb_new_sermon() {
 		$tags = implode(', ', (array) $tags);
 	} else
 		$startArr = $endArr = array();
-	$books = sb_get_bible_books();
+	$books = sb_get_default('eng_bible_books');
 ?>
 	<script type="text/javascript">
 		var timeArr = new Array();
@@ -2521,7 +2521,7 @@ function sb_print_upload_form () {
 	<?php } ?>
 	</form>
 	<?php if ($_GET['page'] == 'sermon-browser/new_sermon.php') { ?>
-		<form method="get" action="<?php echo admin_url();?>">
+		<form method="get" action="<?php echo admin_url('admin.php?page=sermon-browser/new_sermon.php');?>">
 		<input type="hidden" name="page" value="sermon-browser/new_sermon.php" />
 		<tr>
 			<th nowrap valign="top" scope="row"><?php _e('Choose existing file', $sermon_domain) ?>: </th>

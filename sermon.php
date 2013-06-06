@@ -4,7 +4,7 @@ Plugin Name: Sermon Browser
 Plugin URI: http://www.sermonbrowser.com/
 Description: Upload sermons to your website, where they can be searched, listened to, and downloaded. Easy to use with comprehensive help and tutorials.
 Author: Mark Barnes
-Version: 0.45.5
+Version: 0.45.8
 Author URI: http://www.4-14.org.uk/
 
 Copyright (c) 2008-2013 Mark Barnes
@@ -53,7 +53,7 @@ The frontend output is inserted by sb_shortcode
 * Sets version constants and basic Wordpress hooks.
 * @package common_functions
 */
-define('SB_CURRENT_VERSION', '0.45.5');
+define('SB_CURRENT_VERSION', '0.45.8');
 define('SB_DATABASE_VERSION', '1.7');
 sb_define_constants();
 add_action ('plugins_loaded', 'sb_hijack');
@@ -201,10 +201,18 @@ function sb_sermon_init () {
 	wp_register_script('sb_64', SB_PLUGIN_URL.'/sb-includes/64.js', false, SB_CURRENT_VERSION);
 	wp_register_script('sb_datepicker', SB_PLUGIN_URL.'/sb-includes/datePicker.js', array('jquery'), SB_CURRENT_VERSION);
 	wp_register_style('sb_datepicker', SB_PLUGIN_URL.'/sb-includes/datepicker.css', false, SB_CURRENT_VERSION);
-	if (get_option('permalink_structure') == '')
-		wp_register_style('sb_style', trailingslashit(home_url()).'?sb-style&', false, sb_get_option('style_date_modified'));
-	else
-		wp_register_style('sb_style', trailingslashit(home_url()).'sb-style.css', false, sb_get_option('style_date_modified'));
+	if (function_exists('home_url')) {
+		if (get_option('permalink_structure') == '')
+			wp_register_style('sb_style', trailingslashit(home_url()).'?sb-style&', false, sb_get_option('style_date_modified'));
+		else
+			wp_register_style('sb_style', trailingslashit(home_url()).'sb-style.css', false, sb_get_option('style_date_modified'));
+	}
+	else {	// hack for pre 3.0 WordPress
+		if (get_option('permalink_structure') == '')
+			wp_register_style('sb_style', trailingslashit(site_url()).'?sb-style&', false, sb_get_option('style_date_modified'));
+		else
+			wp_register_style('sb_style', trailingslashit(site_url()).'sb-style.css', false, sb_get_option('style_date_modified'));
+	}	
 
 	// Register [sermon] shortcode handler
 	add_shortcode('sermons', 'sb_shortcode');
@@ -375,8 +383,8 @@ function sb_get_default ($default_type) {
 */
 function sb_display_front_end() {
 	global $wpdb, $post;
-	$pageid = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE post_content LIKE '%[sermon%' AND (post_status = 'publish' OR post_status = 'private') AND ID={$post->ID} AND post_date < NOW();");
-	if ($pageid === NULL)
+	$pageid = sb_get_page_id();
+	if ($pageid === 0)
 		return FALSE;
 	else
 		return TRUE;
@@ -389,11 +397,11 @@ function sb_display_front_end() {
 */
 function sb_get_page_id() {
 	global $wpdb, $post;
-	$pageid = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE (post_content LIKE '%[sermons]%' OR post_content LIKE '%[sermon]%') AND (post_type = 'page') AND (post_status = 'publish' OR post_status = 'private') AND post_date < NOW();");
+	$pageid = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE (post_content LIKE '%[sermons]%' OR post_content LIKE '%[sermon]%') AND (post_type = 'page') AND (post_status = 'publish' OR post_status = 'private') ORDER BY post_date ASC LIMIT 1;");
 	if (!$pageid)
-		$pageid = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE (post_content LIKE '%[sermons]%' OR post_content LIKE '%[sermon]%') AND (post_status = 'publish' OR post_status = 'private') AND post_date < NOW();");
+		$pageid = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE (post_content LIKE '%[sermons]%' OR post_content LIKE '%[sermon]%') AND (post_status = 'publish' OR post_status = 'private') ORDER BY post_date ASC LIMIT 1;");
 	if (!$pageid)
-		$pageid = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE (post_content LIKE '%[sermon %' OR post_content LIKE '%[sermons %') AND (post_status = 'publish' OR post_status = 'private') AND post_date < NOW();");
+		$pageid = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE (post_content LIKE '%[sermon %' OR post_content LIKE '%[sermons %') AND (post_status = 'publish' OR post_status = 'private') ORDER BY post_date ASC LIMIT 1;");
 	if (!$pageid)
 		return 0;
 	else
