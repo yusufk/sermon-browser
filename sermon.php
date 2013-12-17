@@ -278,25 +278,24 @@ function sb_sermon_init () {
 }
 
 /**
-* Add Sermons menu and sub-menus in admin
+* Add Salaahs menu and sub-menus in admin
 */
 function sb_add_pages() {
 	global $sermon_domain;
-	add_menu_page(__('Sermons', $sermon_domain), __('Sermons', $sermon_domain), 'publish_posts', __FILE__, 'sb_manage_sermons', SB_PLUGIN_URL.'/sb-includes/sb-icon.png');
-	add_submenu_page(__FILE__, __('Sermons', $sermon_domain), __('Sermons', $sermon_domain), 'publish_posts', __FILE__, 'sb_manage_sermons');
+	add_menu_page(__('Salaahs', $sermon_domain), __('Salaahs', $sermon_domain), 'publish_posts', __FILE__, 'sb_manage_sermons', SB_PLUGIN_URL.'/sb-includes/sb-icon.png');
+	add_submenu_page(__FILE__, __('Salaahs', $sermon_domain), __('Salaahs', $sermon_domain), 'publish_posts', __FILE__, 'sb_manage_sermons');
 	if (isset($_REQUEST['page']) && $_REQUEST['page'] == 'sermon-browser/new_sermon.php' && isset($_REQUEST['mid'])) {
 		add_submenu_page(__FILE__, __('Edit Sermon', $sermon_domain), __('Edit Sermon', $sermon_domain), 'publish_posts', 'sermon-browser/new_sermon.php', 'sb_new_sermon');
 	} else {
 		add_submenu_page(__FILE__, __('Add Sermon', $sermon_domain), __('Add Sermon', $sermon_domain), 'publish_posts', 'sermon-browser/new_sermon.php', 'sb_new_sermon');
 	}
 	add_submenu_page(__FILE__, __('Files', $sermon_domain), __('Files', $sermon_domain), 'upload_files', 'sermon-browser/files.php', 'sb_files');
-	add_submenu_page(__FILE__, __('Preachers', $sermon_domain), __('Preachers', $sermon_domain), 'manage_categories', 'sermon-browser/preachers.php', 'sb_manage_preachers');
-	add_submenu_page(__FILE__, __('Series &amp; Services', $sermon_domain), __('Series &amp; Services', $sermon_domain), 'manage_categories', 'sermon-browser/manage.php', 'sb_manage_everything');
+	add_submenu_page(__FILE__, __('Speakers', $sermon_domain), __('Speakers', $sermon_domain), 'manage_categories', 'sermon-browser/preachers.php', 'sb_manage_preachers');
+	add_submenu_page(__FILE__, __('Series &amp; Salaahs', $sermon_domain), __('Series &amp; Salaahs', $sermon_domain), 'manage_categories', 'sermon-browser/manage.php', 'sb_manage_everything');
 	add_submenu_page(__FILE__, __('Options', $sermon_domain), __('Options', $sermon_domain), 'manage_options', 'sermon-browser/options.php', 'sb_options');
 	add_submenu_page(__FILE__, __('Templates', $sermon_domain), __('Templates', $sermon_domain), 'manage_options', 'sermon-browser/templates.php', 'sb_templates');
 	add_submenu_page(__FILE__, __('Uninstall', $sermon_domain), __('Uninstall', $sermon_domain), 'edit_plugins', 'sermon-browser/uninstall.php', 'sb_uninstall');
 	add_submenu_page(__FILE__, __('Help', $sermon_domain), __('Help', $sermon_domain), 'publish_posts', 'sermon-browser/help.php', 'sb_help');
-	add_submenu_page(__FILE__, __('Pray for Japan', $sermon_domain), __('Pray for Japan', $sermon_domain), 'publish_posts', 'sermon-browser/japan.php', 'sb_japan');
 }
 
 /**
@@ -370,10 +369,10 @@ function sb_get_default ($default_type) {
 			$upload_dir = $upload_dir['baseurl'];
 			return trailingslashit($upload_dir).'sermons/';
 		case 'bible_books':
-			return array(__('Genesis', $sermon_domain), __('Exodus', $sermon_domain), __('Leviticus', $sermon_domain), __('Numbers', $sermon_domain), __('Deuteronomy', $sermon_domain), __('Joshua', $sermon_domain), __('Judges', $sermon_domain), __('Ruth', $sermon_domain), __('1 Samuel', $sermon_domain), __('2 Samuel', $sermon_domain), __('1 Kings', $sermon_domain), __('2 Kings', $sermon_domain), __('1 Chronicles', $sermon_domain), __('2 Chronicles',$sermon_domain), __('Ezra', $sermon_domain), __('Nehemiah', $sermon_domain), __('Esther', $sermon_domain), __('Job', $sermon_domain), __('Psalm', $sermon_domain), __('Proverbs', $sermon_domain), __('Ecclesiastes', $sermon_domain), __('Song of Solomon', $sermon_domain), __('Isaiah', $sermon_domain), __('Jeremiah', $sermon_domain), __('Lamentations', $sermon_domain), __('Ezekiel', $sermon_domain), __('Daniel', $sermon_domain), __('Hosea', $sermon_domain), __('Joel', $sermon_domain), __('Amos', $sermon_domain), __('Obadiah', $sermon_domain), __('Jonah', $sermon_domain), __('Micah', $sermon_domain), __('Nahum', $sermon_domain), __('Habakkuk', $sermon_domain), __('Zephaniah', $sermon_domain), __('Haggai', $sermon_domain), __('Zechariah', $sermon_domain), __('Malachi', $sermon_domain), __('Matthew', $sermon_domain), __('Mark', $sermon_domain), __('Luke', $sermon_domain), __('John', $sermon_domain), __('Acts', $sermon_domain), __('Romans', $sermon_domain), __('1 Corinthians', $sermon_domain), __('2 Corinthians', $sermon_domain), __('Galatians', $sermon_domain), __('Ephesians', $sermon_domain), __('Philippians', $sermon_domain), __('Colossians', $sermon_domain), __('1 Thessalonians', $sermon_domain), __('2 Thessalonians', $sermon_domain), __('1 Timothy', $sermon_domain), __('2 Timothy', $sermon_domain), __('Titus', $sermon_domain), __('Philemon', $sermon_domain), __('Hebrews', $sermon_domain), __('James', $sermon_domain), __('1 Peter', $sermon_domain), __('2 Peter', $sermon_domain), __('1 John', $sermon_domain), __('2 John', $sermon_domain), __('3 John', $sermon_domain), __('Jude', $sermon_domain), __('Revelation', $sermon_domain));
+			return array(__('al-Fatihah', $sermon_domain), __('al-Baqarah', $sermon_domain), __('Al-Imran', $sermon_domain), __('an-Nisa', $sermon_domain), __('al-Maidah', $sermon_domain), __('al-Anam', $sermon_domain), __('al-Araf', $sermon_domain), __('al-Anfal', $sermon_domain), __('at-Taubah', $sermon_domain), __('Yunus', $sermon_domain), __('Hud', $sermon_domain), __('Yusuf', $sermon_domain), __('ar-Rad', $sermon_domain), __('Ibrahim', $sermon_domain), __('al-Hijr', $sermon_domain), __('an-Nahl', $sermon_domain), __('bani Israil', $sermon_domain), __('al-Kahf', $sermon_domain), __('Maryam', $sermon_domain), __('Ta Ha', $sermon_domain), __('al-Anbiya', $sermon_domain), __('al-Hajj', $sermon_domain), __('al-Muminun', $sermon_domain), __('an-Nur', $sermon_domain), __('al-Furqan', $sermon_domain), __('ash-Shuara', $sermon_domain), __('an-Naml', $sermon_domain), __('al-Qasas', $sermon_domain), __('al-Ankabut', $sermon_domain), __('ar-Rum', $sermon_domain), __('Luqman', $sermon_domain), __('as-Sajdah', $sermon_domain), __('al-Ahzab', $sermon_domain), __('Saba', $sermon_domain), __('al-Fatir', $sermon_domain), __('Ya Sin', $sermon_domain), __('as-Saffat', $sermon_domain), __('Sad', $sermon_domain), __('az-Zumar', $sermon_domain), __('al-Mumin', $sermon_domain), __('Ha Mim Sajdah', $sermon_domain), __('ash-Shura', $sermon_domain), __('az-Zukhruf', $sermon_domain), __('ad-Dukhan', $sermon_domain), __('al-Jathiyah', $sermon_domain), __('al-Ahqaf', $sermon_domain), __('Muhammad', $sermon_domain), __('al-Fath', $sermon_domain), __('al-Hujurat', $sermon_domain), __('Qaf', $sermon_domain), __('adh-Dhariyat', $sermon_domain), __('at-Tur', $sermon_domain), __('an-Najm', $sermon_domain), __('al-Qamar', $sermon_domain), __('ar-Rahman', $sermon_domain), __('al-Waqiah', $sermon_domain), __('al-Hadid', $sermon_domain), __('al-Mujadilah', $sermon_domain), __('al-Hashr', $sermon_domain), __('al-Mumtahanah', $sermon_domain), __('as-Saff', $sermon_domain), __('al-Jumuah', $sermon_domain), __('al-Munafiqun', $sermon_domain), __('at-Taghabun', $sermon_domain), __('at-Talaq', $sermon_domain), __('', $sermon_domain), __('at-Tahrim', $sermon_domain), __('al-Mulk', $sermon_domain), __('al-Qalam', $sermon_domain), __('al-Haqqah', $sermon_domain), __('al-Maarij', $sermon_domain), __('Nuh', $sermon_domain), __('al-Jinn', $sermon_domain), __('al-Muzammil', $sermon_domain), __('al-Mudathir', $sermon_domain), __('al-Qiyamah', $sermon_domain), __('ad-Dahr', $sermon_domain), __('al-Mursalat', $sermon_domain), __('an-Naba', $sermon_domain), __('an-Naziat', $sermon_domain), __('', $sermon_domain), __('Abasa', $sermon_domain), __('at-Takwir', $sermon_domain), __('al-Infitar', $sermon_domain), __('at-Tatfif', $sermon_domain), __('al-Inshiqaq', $sermon_domain), __('al-Buruj', $sermon_domain), __('at-Tariq', $sermon_domain), __('al-Ala', $sermon_domain), __('al-Ghashiya', $sermon_domain), __('al-Fajr', $sermon_domain), __('al-Balad', $sermon_domain), __('ash-Shams', $sermon_domain), __('al-Layl', $sermon_domain), __('ad-Duha', $sermon_domain), __('al-Inshirah', $sermon_domain), __('at-Tin', $sermon_domain), __('al-Alaq', $sermon_domain), __('al-qadr', $sermon_domain), __('al-Bayyinah', $sermon_domain), __('al-Zilzal', $sermon_domain), __('al-Adiyat', $sermon_domain), __('al-Qariah', $sermon_domain), __('at-Takathur', $sermon_domain), __('al-Asr', $sermon_domain), __('al-Humazah', $sermon_domain), __('al-Fil', $sermon_domain), __('al-Quraysh', $sermon_domain), __('al-Maun', $sermon_domain), __('al-Kauthar', $sermon_domain), __('al-Kafirun', $sermon_domain), __('an-Nasr', $sermon_domain), __('al-Lahab', $sermon_domain), __('al-Ikhlas', $sermon_domain), __('al-Falaq', $sermon_domain), __('an-Nas', $sermon_domain));
 		case 'eng_bible_books':
-			return array('Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah', 'Esther', 'Job', 'Psalm', 'Proverbs', 'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi', 'Matthew', 'Mark', 'Luke', 'John', 'Acts', 'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians', 'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', '1 Timothy', '2 Timothy', 'Titus', 'Philemon', 'Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude', 'Revelation');
-	}
+			return array('al-Fatihah','al-Baqarah','Al-Imran','an-Nisa','al-Maidah','al-Anam','al-Araf','al-Anfal','at-Taubah','Yunus','Hud','Yusuf','ar-Rad','Ibrahim','al-Hijr','an-Nahl','bani Israil','al-Kahf','Maryam','Ta Ha','al-Anbiya','al-Hajj','al-Muminun','an-Nur','al-Furqan','ash-Shuara','an-Naml','al-Qasas','al-Ankabut','ar-Rum','Luqman','as-Sajdah','al-Ahzab','Saba','al-Fatir','Ya Sin','as-Saffat','Sad','az-Zumar','al-Mumin','Ha Mim Sajdah','ash-Shura','az-Zukhruf','ad-Dukhan','al-Jathiyah','al-Ahqaf','Muhammad','al-Fath','al-Hujurat','Qaf','adh-Dhariyat','at-Tur','an-Najm','al-Qamar','ar-Rahman','al-Waqiah','al-Hadid','al-Mujadilah','al-Hashr','al-Mumtahanah','as-Saff','al-Jumuah','al-Munafiqun','at-Taghabun','at-Talaq','','at-Tahrim','al-Mulk','al-Qalam','al-Haqqah','al-Maarij','Nuh','al-Jinn','al-Muzammil','al-Mudathir','al-Qiyamah','ad-Dahr','al-Mursalat','an-Naba','an-Naziat','','Abasa','at-Takwir','al-Infitar','at-Tatfif','al-Inshiqaq','al-Buruj','at-Tariq','al-Ala','al-Ghashiya','al-Fajr','al-Balad','ash-Shams','al-Layl','ad-Duha','al-Inshirah','at-Tin','al-Alaq','al-qadr','al-Bayyinah','al-Zilzal','al-Adiyat','al-Qariah','at-Takathur','al-Asr','al-Humazah','al-Fil','al-Quraysh','al-Maun','al-Kauthar','al-Kafirun','an-Nasr','al-Lahab','al-Ikhlas','al-Falaq','an-Nas');
+		}
 }
 
 /**
@@ -544,12 +543,12 @@ function sb_shortcode($atts, $content=null) {
 */
 function sb_widget_sermon_init() {
 	global $sermon_domain;
-	//Sermons Widget
+	//Salaahs Widget
 	if (!$options = sb_get_option('sermons_widget_options'))
 		$options = array();
-	$widget_ops = array('classname' => 'sermon', 'description' => __('Display a list of recent sermons.', $sermon_domain));
+	$widget_ops = array('classname' => 'sermon', 'description' => __('Display a list of recent lectures.', $sermon_domain));
 	$control_ops = array('width' => 400, 'height' => 350, 'id_base' => 'sermon');
-	$name = __('Sermons', $sermon_domain);
+	$name = __('Salaahs', $sermon_domain);
 	$registered = false;
 	foreach (array_keys($options) as $o) {
 		if (!isset($options[$o]['limit']))
@@ -567,7 +566,7 @@ function sb_widget_sermon_init() {
 	wp_register_sidebar_widget('sermon-browser-tags', __('Sermon Browser tags', $sermon_domain), 'sb_widget_tag_cloud_wrapper');
 	//Most popular widget
 	$name = __('Most popular sermons', $sermon_domain);
-	$description = __('Display a list of the most popular sermons, series or preachers.', $sermon_domain);
+	$description = __('Display a list of the most popular lectures, series or speakers.', $sermon_domain);
 	$widget_ops = array('classname' => 'sermon-browser-popular', 'description' => $description);
 	$control_ops = array('width' => 400, 'height' => 350, 'id_base' => 'sermon-browser-popular');
 	wp_register_sidebar_widget( 'sermon-browser-popular', $name, 'sb_widget_popular_wrapper', $widget_ops);
@@ -628,7 +627,7 @@ function sb_get_option($type) {
 				return FALSE;
 			$sermonbrowser_options = unserialize(base64_decode($options));
 			if ($sermonbrowser_options === FALSE)
-				wp_die ('Failed to get SermonBrowser options '.base64_decode(get_option('sermonbrowser_options')));
+				wp_die ('Failed to get BayaanBrowser options '.base64_decode(get_option('sermonbrowser_options')));
 		}
 		if (isset($sermonbrowser_options[$type]))
 			return $sermonbrowser_options[$type];
@@ -657,7 +656,7 @@ function sb_update_option($type, $val) {
 			if ($options !== FALSE) {
 				$sermonbrowser_options = unserialize(base64_decode($options));
 				if ($sermonbrowser_options === FALSE)
-					wp_die ('Failed to get SermonBrowser options '.base64_decode(get_option('sermonbrowser_options')));
+					wp_die ('Failed to get BayaanBrowser options '.base64_decode(get_option('sermonbrowser_options')));
 			}
 		}
 		if (!isset($sermonbrowser_options[$type]) || $sermonbrowser_options[$type] !== $val) {
