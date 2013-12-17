@@ -1,0 +1,587 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Sermon Browser\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-05-10 16:07-0000\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Yusuf Kaka\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: English\n"
+"X-Poedit-KeywordsList: __;_e;_x\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../sermon.php:275
+#: ../sermon.php:276
+#: ../sermon.php:540
+#: ../sb-includes/admin.php:563
+#: ../sb-includes/admin.php:737
+#: ../sb-includes/admin.php:1257
+#: ../sb-includes/frontend.php:125
+#: ../sb-includes/widget.php:78
+msgid "Sermons"
+msgstr "Lectures"
+
+#: ../sermon.php:278
+#: ../sb-includes/frontend.php:122
+msgid "Edit Sermon"
+msgstr "Edit Lecture"
+
+#: ../sermon.php:280
+#: ../sb-includes/frontend.php:127
+msgid "Add Sermon"
+msgstr "Add Lecture"
+
+#: ../sermon.php:283
+#: ../sb-includes/admin.php:555
+#: ../sb-includes/frontend.php:132
+msgid "Preachers"
+msgstr "Speakers"
+
+#: ../sermon.php:284
+#: ../sb-includes/frontend.php:133
+msgid "Series &amp; Services"
+msgstr "Series &amp; Salaahs"
+
+#: ../sermon.php:289
+#: ../sb-includes/frontend.php:142
+msgid "Pray for Japan"
+msgstr "N/A"
+
+#: ../sermon.php:363
+msgid "Genesis"
+msgstr "Al-Fatihah"
+
+#: ../sermon.php:363
+msgid "Exodus"
+msgstr "Al-Baqarah"
+
+#: ../sermon.php:363
+msgid "Leviticus"
+msgstr "Al-Imran"
+
+#: ../sermon.php:363
+msgid "Numbers"
+msgstr "An-Nisa"
+
+#: ../sermon.php:363
+msgid "Deuteronomy"
+msgstr "Al-Maidah"
+
+#: ../sermon.php:363
+msgid "Joshua"
+msgstr "Al-Anam"
+
+#: ../sermon.php:363
+msgid "Judges"
+msgstr "Al-Araf "
+
+#: ../sermon.php:363
+msgid "Ruth"
+msgstr "Al-Anfal"
+
+#: ../sermon.php:363
+msgid "1 Samuel"
+msgstr "At-Taubah"
+
+#: ../sermon.php:363
+msgid "2 Samuel"
+msgstr "Yunus"
+
+#: ../sermon.php:363
+msgid "1 Kings"
+msgstr "Hud"
+
+#: ../sermon.php:363
+msgid "2 Kings"
+msgstr "Yusuf"
+
+#: ../sermon.php:363
+msgid "1 Chronicles"
+msgstr "Ar-Rad"
+
+#: ../sermon.php:363
+msgid "2 Chronicles"
+msgstr "Ibrahim"
+
+#: ../sermon.php:363
+msgid "Ezra"
+msgstr "Al-Hijr"
+
+#: ../sermon.php:363
+msgid "Nehemiah"
+msgstr "An-Nahl"
+
+#: ../sermon.php:363
+msgid "Esther"
+msgstr "Bani Israil"
+
+#: ../sermon.php:363
+msgid "Job"
+msgstr "Al-Kahf"
+
+#: ../sermon.php:363
+msgid "Psalm"
+msgstr "Maryam"
+
+#: ../sermon.php:363
+msgid "Proverbs"
+msgstr "Ta Ha"
+
+#: ../sermon.php:363
+msgid "Ecclesiastes"
+msgstr "Al-Anbiya"
+
+#: ../sermon.php:363
+msgid "Song of Solomon"
+msgstr "Al-Hajj"
+
+#: ../sermon.php:363
+msgid "Isaiah"
+msgstr "Al-Muminun"
+
+#: ../sermon.php:363
+msgid "Jeremiah"
+msgstr "An-Nur"
+
+#: ../sermon.php:363
+msgid "Lamentations"
+msgstr "Al-Furqan"
+
+#: ../sermon.php:363
+msgid "Ezekiel"
+msgstr "Ash-Shuara"
+
+#: ../sermon.php:363
+msgid "Daniel"
+msgstr "An-Naml"
+
+#: ../sermon.php:363
+msgid "Hosea"
+msgstr "Al-Qasas"
+
+#: ../sermon.php:363
+msgid "Joel"
+msgstr "Al-Ankabut"
+
+#: ../sermon.php:363
+msgid "Amos"
+msgstr "Ar-Rum"
+
+#: ../sermon.php:363
+msgid "Obadiah"
+msgstr "Luqmaan"
+
+#: ../sermon.php:363
+msgid "Jonah"
+msgstr "As-Sajdah"
+
+#: ../sermon.php:363
+msgid "Micah"
+msgstr "Al-Ahzab"
+
+#: ../sermon.php:363
+msgid "Nahum"
+msgstr "Al-Saba"
+
+#: ../sermon.php:363
+msgid "Habakkuk"
+msgstr "Al-Fatir"
+
+#: ../sermon.php:363
+msgid "Zephaniah"
+msgstr "Ya Sin"
+
+#: ../sermon.php:363
+msgid "Haggai"
+msgstr "As-Saffat"
+
+#: ../sermon.php:363
+msgid "Zechariah"
+msgstr "Sad"
+
+#: ../sermon.php:363
+msgid "Malachi"
+msgstr "Az-Zumar"
+
+#: ../sermon.php:363
+msgid "Matthew"
+msgstr "Al-Mumin"
+
+#: ../sermon.php:363
+msgid "Mark"
+msgstr "Ha Mim"
+
+#: ../sermon.php:363
+msgid "Luke"
+msgstr "Ash-Shura"
+
+#: ../sermon.php:363
+msgid "John"
+msgstr "Az-Zukhruf"
+
+#: ../sermon.php:363
+msgid "Acts"
+msgstr "Ad-Dukhan"
+
+#: ../sermon.php:363
+msgid "Romans"
+msgstr "Al-Jathiyah"
+
+#: ../sermon.php:363
+msgid "1 Corinthians"
+msgstr "Al-Ahqaf"
+
+#: ../sermon.php:363
+msgid "2 Corinthians"
+msgstr "Muhammed"
+
+#: ../sermon.php:363
+msgid "Galatians"
+msgstr "Al-Fath"
+
+#: ../sermon.php:363
+msgid "Ephesians"
+msgstr "Al-Hujurat"
+
+#: ../sermon.php:363
+msgid "Philippians"
+msgstr "At-Tur"
+
+#: ../sermon.php:363
+msgid "Colossians"
+msgstr "An-Najm"
+
+#: ../sermon.php:363
+msgid "1 Thessalonians"
+msgstr "Al-Qamar"
+
+#: ../sermon.php:363
+msgid "2 Thessalonians"
+msgstr "Ar-Rahman"
+
+#: ../sermon.php:363
+msgid "1 Timothy"
+msgstr "Al-Waqi'ah"
+
+#: ../sermon.php:363
+msgid "2 Timothy"
+msgstr "Al-Hadid"
+
+#: ../sermon.php:363
+msgid "Titus"
+msgstr "Al-Mujadilah"
+
+#: ../sermon.php:363
+msgid "Philemon"
+msgstr "Al-Hashr"
+
+#: ../sermon.php:363
+msgid "Hebrews"
+msgstr "Al-Mumtahanah"
+
+#: ../sermon.php:363
+msgid "James"
+msgstr "As-Saff"
+
+#: ../sermon.php:363
+msgid "1 Peter"
+msgstr "Al-Jumuah"
+
+#: ../sermon.php:363
+msgid "2 Peter"
+msgstr "Al-Munafiqun"
+
+#: ../sermon.php:363
+msgid "1 John"
+msgstr "At-Taghabun"
+
+#: ../sermon.php:363
+msgid "2 John"
+msgstr "At-Talaq"
+
+#: ../sermon.php:363
+msgid "3 John"
+msgstr "At-Tahrim"
+
+#: ../sermon.php:363
+msgid "Jude"
+msgstr "Al-Mulk"
+
+#: ../sermon.php:363
+msgid "Revelation"
+msgstr "Al-Qalam"
+
+#: ../sermon.php:501
+#: ../sb-includes/frontend.php:326
+msgid "No sermons found."
+msgstr "No lectures found."
+
+#: ../sermon.php:538
+msgid "Display a list of recent sermons."
+msgstr "Display a list of recent lectures."
+
+#: ../sermon.php:555
+#: ../sb-includes/frontend.php:112
+#: ../sb-includes/widget.php:92
+#: ../sb-includes/widget.php:104
+msgid "Sermon Browser tags"
+msgstr "Lecture Browser tags"
+
+#: ../sermon.php:557
+msgid "Most popular sermons"
+msgstr "Most popular lectures"
+
+#: ../sermon.php:558
+msgid "Display a list of the most popular sermons, series or preachers."
+msgstr "Display a list of the most popular lectures, series or speakers."
+
+#: ../sb-includes/admin.php:199
+msgid "Sermons per page"
+msgstr "Lectures per page"
+
+#: ../sb-includes/admin.php:223
+msgid "Hide sermons without attachments?"
+msgstr "Hide lectures without attachments?"
+
+#: ../sb-includes/admin.php:262
+msgid "Add files prompt to top of Add Sermon page?"
+msgstr "Add files prompt to top of Add Lecture page?"
+
+#: ../sb-includes/admin.php:266
+msgid "Use title tag for sermon title?"
+msgstr "Use title tag for lecture title?"
+
+#: ../sb-includes/admin.php:270
+msgid "Use artist tag for preacher?"
+msgstr "Use artist tag for speaker"
+
+#: ../sb-includes/admin.php:278
+msgid "Use comments tag for sermon description?"
+msgstr "Use comments tag for lecture description?"
+
+#: ../sb-includes/admin.php:400
+msgid "Sermon page"
+msgstr "Lecture page"
+
+#: ../sb-includes/admin.php:431
+msgid "You do not have the correct permissions to manage the preachers' database"
+msgstr "You do not have the correct permissions to manage the speakers database"
+
+#: ../sb-includes/admin.php:433
+msgid "Preacher saved to database."
+msgstr "Speaker saved to database."
+
+#: ../sb-includes/admin.php:481
+#: ../sb-includes/admin.php:579
+msgid "You cannot delete this preacher until you first delete any sermons they have preached."
+msgstr "You cannot delete this speaker until you first delete any lectures they have delivered."
+
+#: ../sb-includes/admin.php:495
+msgid "preacher"
+msgstr "speaker"
+
+#: ../sb-includes/admin.php:577
+msgid "You must have at least one preacher in the database."
+msgstr "You must have at least one speaker in the database."
+
+#: ../sb-includes/admin.php:599
+msgid "You do not have the correct permissions to manage the series and services database"
+msgstr "You do not have the correct permissions to manage the series and salaah database"
+
+#: ../sb-includes/admin.php:623
+#: ../sb-includes/admin.php:702
+#: ../sb-includes/admin.php:1603
+msgid "New service's name @ default time?"
+msgstr "New salaah's name @ default time?"
+
+#: ../sb-includes/admin.php:623
+#: ../sb-includes/admin.php:1603
+msgid "Service's name @ 18:00"
+msgstr "Salaah's name @ 18:00"
+
+#: ../sb-includes/admin.php:758
+msgid "Some sermons are currently assigned to that service. You can only delete services that are not used in the database."
+msgstr "Some lectures are currently assigned to that salaah. You can only delete salaahs that are not used in the database."
+
+#: ../sb-includes/admin.php:761
+msgid "Some sermons are currently in that series. You can only delete series that are empty."
+msgstr "Some lectures are currently in that series. You can only delete series that are empty."
+
+#: ../sb-includes/admin.php:764
+msgid "That preacher has sermons in the database. You can only delete preachers who have no sermons in the database."
+msgstr "That speaker has sermons in the database. You can only delete speakers who have no lectures in the database."
+
+#: ../sb-includes/admin.php:788
+msgid "You do not have the correct permissions to upload sermons"
+msgstr "You do not have the correct permissions to upload lectures"
+
+#: ../sb-includes/admin.php:1024
+#: ../sb-includes/ajax.php:189
+msgid "Create sermon"
+msgstr "Create lecture"
+
+#: ../sb-includes/admin.php:1048
+#: ../sb-includes/admin.php:1097
+#: ../sb-includes/frontend.php:143
+#: ../sb-includes/widget.php:76
+msgid "Sermon"
+msgstr "Lecture"
+
+#: ../sb-includes/admin.php:1123
+msgid "Pressing the button below scans every sermon in the database, and removes missing attachments. Use with caution!"
+msgstr "Pressing the button below scans every lecture in the database, and removes missing attachments. Use with caution!"
+
+#: ../sb-includes/admin.php:1173
+#: ../sb-includes/admin.php:1371
+msgid "You do not have the correct permissions to edit sermons"
+msgstr "You do not have the correct permissions to edit lectures"
+
+#: ../sb-includes/admin.php:1176
+msgid "Sermon saved to database."
+msgstr "Lecture saved to database."
+
+#: ../sb-includes/admin.php:1178
+msgid "If you find SermonBrowser useful, please consider %1$ssupporting%2$s the ministry of Nathanael and Anna Ayling in Japan."
+msgstr "NA"
+
+#: ../sb-includes/admin.php:1184
+msgid "You do not have the correct permissions to delete sermons"
+msgstr "You do not have the correct permissions to delete lectures"
+
+#: ../sb-includes/admin.php:1192
+msgid "Sermon removed from database."
+msgstr "Lecture removed from database."
+
+#: ../sb-includes/admin.php:1237
+#: ../sb-includes/admin.php:1264
+#: ../sb-includes/admin.php:1723
+#: ../sb-includes/frontend.php:997
+msgid "Preacher"
+msgstr "Speaker"
+
+#: ../sb-includes/admin.php:1266
+#: ../sb-includes/admin.php:1783
+msgid "Service"
+msgstr "Salaah"
+
+#: ../sb-includes/admin.php:1316
+msgid "You do not have the correct permissions to edit or create sermons"
+msgstr "You do not have the correct permissions to edit or create lectures"
+
+#: ../sb-includes/admin.php:1365
+msgid "You do not have the correct permissions to create sermons"
+msgstr "You do not have the correct permissions to create lectures"
+
+#: ../sb-includes/admin.php:1584
+msgid "New preacher's name?"
+msgstr "New speakers name?"
+
+#: ../sb-includes/admin.php:1584
+msgid "Preacher's name"
+msgstr "Speakers name"
+
+#: ../sb-includes/admin.php:1704
+msgid "Enter sermon details"
+msgstr "Enter lecture details"
+
+#: ../sb-includes/admin.php:1738
+msgid "Create new preacher"
+msgstr "Create new speaker"
+
+#: ../sb-includes/admin.php:1792
+msgid "Create new service"
+msgstr "Create new salaah"
+
+#: ../sb-includes/admin.php:1807
+msgid "Bible passage"
+msgstr "Quraan Aaayah"
+
+#: ../sb-includes/admin.php:2135
+msgid "Error:</b> The MP3 shortcode must link to individual sermon files. You do this by including <span style=\"color:red\">%SERMONURL%</span> in your shortcode (e.g. [audio:%SERMONURL%]). SermonBrowser will then replace %SERMONURL% with a link to each sermon."
+msgstr "Error:</b> The MP3 shortcode must link to individual lecture files. You do this by including <span style=\"color:red\">%SERMONURL%</span> in your shortcode (e.g. [audio:%SERMONURL%]). SermonBrowser will then replace %SERMONURL% with a link to each lecture."
+
+#: ../sb-includes/admin.php:2148
+#, php-format
+msgid "%sCreate a page%s that includes the shortcode [sermons], so that SermonBrowser knows where to display the sermons on your site."
+msgstr "%sCreate a page%s that includes the shortcode [sermons], so that SermonBrowser knows where to display the lectures on your site."
+
+#: ../sb-includes/admin.php:2209
+#, php-format
+msgid "The most popular sermon is %s, which has been downloaded %s times"
+msgstr "The most popular lecture is %s, which has been downloaded %s times"
+
+#: ../sb-includes/admin.php:2359
+#: ../sb-includes/admin.php:2436
+#: ../sb-includes/widget.php:305
+msgid "Number of sermons: "
+msgstr "Number of lectures: "
+
+#: ../sb-includes/admin.php:2361
+#: ../sb-includes/widget.php:307
+msgid "Display preacher"
+msgstr "Display speaker"
+
+#: ../sb-includes/admin.php:2362
+#: ../sb-includes/widget.php:308
+msgid "Display bible passage"
+msgstr "Display Quraan Aayah"
+
+#: ../sb-includes/admin.php:2368
+#: ../sb-includes/widget.php:314
+msgid "Preacher: "
+msgstr "Speaker"
+
+#: ../sb-includes/admin.php:2379
+#: ../sb-includes/widget.php:325
+msgid "Service: "
+msgstr "Salaah: "
+
+#: ../sb-includes/admin.php:2438
+msgid "Display popular sermons"
+msgstr "Display popular lectures"
+
+#: ../sb-includes/admin.php:2440
+msgid "Display popular preachers"
+msgstr "Display popular speakers"
+
+#: ../sb-includes/admin.php:2469
+#, php-format
+msgid "You will need to set the %s before you can import MP3s and pre-fill the Add Sermons form."
+msgstr "You will need to set the %s before you can import MP3s and pre-fill the Add Lectures form."
+
+#: ../sb-includes/admin.php:2483
+msgid "Add Sermons"
+msgstr "Add Lectures"
+
+#: ../sb-includes/admin.php:2551
+msgid "From this page you can edit or delete any of your sermons. The most recent sermons are found at the top. Use the filter options to quickly find the one you want."
+msgstr "From this page you can edit or delete any of your lectures. The most recent lectures are found at the top. Use the filter options to quickly find the one you want."
+
+#: ../sb-includes/frontend.php:123
+msgid "List Sermons"
+msgstr "List Lectures"
+
+#: ../sb-includes/frontend.php:519
+msgid "Sermon podcast"
+msgstr "Lecture podcast"
+
+#: ../sb-includes/frontend.php:528
+msgid "Custom sermon podcast"
+msgstr "Custom lecture podcast"
+
+#: ../sb-includes/frontend.php:1005
+msgid "Services"
+msgstr "Salaahs"
+
+#: ../sb-includes/frontend.php:1015
+msgid "Book"
+msgstr "Surah"
+
+#: ../sb-includes/uninstall.php:25
+msgid "All sermon data has been removed."
+msgstr "All lecture data has been removed."
+
